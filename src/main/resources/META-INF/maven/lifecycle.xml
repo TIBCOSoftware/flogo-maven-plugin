@@ -1,0 +1,13 @@
+<lifecycles>
+  <lifecycle>
+    <id>flogotestreport</id>
+    <phases>
+      <phase>
+        <id>test</id>
+        <configuration>
+          <testFailureIgnore>true</testFailureIgnore>
+        </configuration>
+      </phase>
+    </phases>
+  </lifecycle>
+</lifecycles>
