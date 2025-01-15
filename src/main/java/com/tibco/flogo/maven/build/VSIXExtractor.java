@@ -16,6 +16,8 @@ import java.nio.file.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import static java.nio.file.FileSystems.newFileSystem;
+
 public class VSIXExtractor {
     public static void extract(String vsixfile) {
         try {
@@ -129,7 +131,7 @@ public class VSIXExtractor {
     public static void extractSingleFile(Path zipFile, String fileName, Path outputFile) throws IOException {
         // Wrap the file system in a try-with-resources statement
         // to auto-close it when finished and prevent a memory leak
-        try (FileSystem fileSystem = FileSystems.newFileSystem(zipFile)) {
+        try (FileSystem fileSystem = newFileSystem(zipFile)) {
             Path fileToExtract = fileSystem.getPath(fileName);
             Files.copy(fileToExtract, outputFile);
         }

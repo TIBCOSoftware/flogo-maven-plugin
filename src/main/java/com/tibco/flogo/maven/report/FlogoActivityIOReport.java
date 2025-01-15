@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tibco.flogo.maven.test.FlogoTestConfig;
 import com.tibco.flogo.maven.test.dto.Root;
 import com.tibco.flogo.maven.utils.FileHelper;
-import org.apache.commons.io.FilenameUtils;
 import org.apache.maven.ProjectDependenciesResolver;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -19,9 +18,17 @@ import java.nio.file.Paths;
 import java.util.Locale;
 
 
-@Mojo(name = "flogoreport", inheritByDefault = false)
-@Execute(lifecycle = "flogotestreport", phase = LifecyclePhase.TEST)
-public class FlogoTestReport extends AbstractMavenReport {
+@Mojo(name = "flogoioreport", inheritByDefault = false)
+public class FlogoActivityIOReport extends AbstractMavenReport {
+
+    @Component
+    ProjectDependenciesResolver resolver;
+    @Parameter(defaultValue = "${session}", readonly = true)
+    private MavenSession session;
+    @Parameter(property = "showFailureDetails", defaultValue = "true")
+    private boolean showFailureDetails;
+    @Parameter(property = "testSuiteName", defaultValue = "")
+    private String testSuiteName;
 
 
     @Parameter(defaultValue = "${project.build.directory}", property = "outputDir", required = true)
@@ -33,9 +40,17 @@ public class FlogoTestReport extends AbstractMavenReport {
     @Parameter(property = "project.artifactId")
     private String artifactId;
 
-    @Parameter(property = "appFilePath", defaultValue = "")
+    @Parameter(property = "buildSource", defaultValue = "false")
+    private String buildSource;
+
+    @Parameter(property = "vsixPath", defaultValue = "false")
+    private String vsixPath;
+
+    @Parameter(property = "appFilePath", defaultValue = "false")
     private String appFilePath;
 
+    @Parameter(property = "testFailureIgnore", defaultValue = "false")
+    private boolean testFailureIgnore;
 
     @Override
     public String getDescription(Locale arg0) {
@@ -45,12 +60,12 @@ public class FlogoTestReport extends AbstractMavenReport {
     @Override
     public String getName(Locale arg0) {
 
-        return "Flogo Test Report";
+        return "flogoio";
     }
 
     @Override
     public String getOutputName() {
-        return "Flogo Test Report";
+        return "flogoio";
     }
 
 
@@ -66,31 +81,35 @@ public class FlogoTestReport extends AbstractMavenReport {
         FlogoTestConfig.INSTANCE.reset();
         getLog().info("FlogoTestMojo executed");
         try {
-
-            if (appFilePath == null || appFilePath.isEmpty()) {
-                // App not provided explicitly. Check for flogo app in the base folder.
-                appFilePath = Paths.get(projectBaseDir.getAbsolutePath(), artifactId+".flogo").toFile().getAbsolutePath();
-                if ( new File(appFilePath).isFile() ) {
-                } else {
-                    throw new Exception( "No flogo app found with name => " + (artifactId+".flogo") + " in the project directory");
-                }
-            } else {
+            String appPath = projectBaseDir.toPath().toAbsolutePath().toString();
+            if (appFilePath != null && !appFilePath.isEmpty()) {
                 File file = new File(appFilePath);
                 if (file.isFile()) {
                     if (!file.isAbsolute()) {
+                        appPath = file.getCanonicalFile().getParentFile().getAbsolutePath();
                     } else {
+                        appPath = file.getParentFile().getAbsolutePath();
                     }
-                } else {
-                    throw new Exception("Invalid Flogo App file path provided. Flogo path can be provided relative to the folder where the POM file is present or absolute path.");
+
                 }
             }
+            String[] files = new File(appPath).list((dir, name) -> name.endsWith(".flogotest"));
+            if (files.length == 0) {
+                throw new Exception("No tests files found in the base folder");
+            }
 
-            String appfileName = FilenameUtils.getBaseName( appFilePath);
 
+            FlogoTestConfig.INSTANCE.setAppBinary(Paths.get(outputDirectory.getAbsolutePath(), artifactId).toFile().getAbsolutePath());
+            FlogoTestConfig.INSTANCE.setTestFilePath(Paths.get(appPath, files[0]).toFile().getAbsolutePath());
+            File testresult = new File(Paths.get(outputDirectory.getAbsolutePath(), "testresult").toFile().getAbsolutePath());
+            if (!testresult.exists()) {
+                Files.createDirectory(testresult.toPath());
+            }
             FlogoTestConfig.INSTANCE.setTestOutputDir(Paths.get(outputDirectory.getAbsolutePath(), "testresult").toFile().getAbsolutePath());
-            FlogoTestConfig.INSTANCE.setTestOutputFile(appfileName);
+            FlogoTestConfig.INSTANCE.setTestOutputFile(artifactId);
+            FlogoTestConfig.INSTANCE.setPreserveIO(true);
 
-            getLog().info("Generating report ..");
+            getLog().info("Generating report");
             FlogoTestReportGenerator gen = new FlogoTestReportGenerator();
             String content = FileHelper.readFile(Paths.get(FlogoTestConfig.INSTANCE.getTestOutputDir(), FlogoTestConfig.INSTANCE.getTestOutputFile() + ".testresult").toFile().getAbsolutePath(), Charset.defaultCharset());
 

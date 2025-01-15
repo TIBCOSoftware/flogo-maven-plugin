@@ -6,6 +6,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class FlogoCLIRunner {
 
@@ -19,7 +20,14 @@ public class FlogoCLIRunner {
     public void runBuild(List<String> launchConfig) throws Exception {
         Process process = null;
         ProcessBuilder pb = new ProcessBuilder(launchConfig);
-        pb.redirectErrorStream(true);  // Combine stdout and stderr
+        pb.redirectErrorStream(true);
+
+        Map<String, String> env = pb.environment();
+        // set environment variable u
+        env.put("IBM_MQ_HOME", FlogoBuildConfig.INSTANCE.getMqHome());
+        env.put( "EMS_HOME" , FlogoBuildConfig.INSTANCE.getEmsHome());
+
+        // Combine stdout and stderr
         process = pb.start();
 
         BufferedReader reader =
@@ -52,11 +60,14 @@ public class FlogoCLIRunner {
         launchConfig.add(FlogoBuildConfig.INSTANCE.getFlogoRuntimePath());
         launchConfig.add("-c");
         launchConfig.add(FlogoBuildConfig.INSTANCE.getFlogoConnectorsPath());
+        launchConfig.add("-e");
+        launchConfig.add(FlogoBuildConfig.INSTANCE.getCustomExtensionsPath());
         launchConfig.add("-o");
         launchConfig.add(FlogoBuildConfig.INSTANCE.getOutputPath());
         launchConfig.add("-n");
         launchConfig.add(FlogoBuildConfig.INSTANCE.getArtifactId());
         launchConfig.add("-d");
+
         return launchConfig;
     }
 

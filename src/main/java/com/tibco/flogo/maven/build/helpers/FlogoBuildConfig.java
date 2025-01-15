@@ -12,6 +12,24 @@ public class FlogoBuildConfig {
     private String appPath;
     private String artifactId;
     private String version;
+    private String emsHome;
+    private String mqHome;
+
+    public String getEmsHome() {
+        return emsHome;
+    }
+
+    public void setEmsHome(String emsHome) {
+        this.emsHome = emsHome;
+    }
+
+    public String getMqHome() {
+        return mqHome;
+    }
+
+    public void setMqHome(String mqHome) {
+        this.mqHome = mqHome;
+    }
 
     public String getArtifactId() {
         return artifactId;

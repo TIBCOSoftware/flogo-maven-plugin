@@ -1,10 +1,9 @@
 package com.tibco.flogo.maven.report;
 
-import com.tibco.flogo.maven.test.dto.Root;
-import com.tibco.flogo.maven.test.dto.Suite;
-import com.tibco.flogo.maven.test.dto.TestCase;
+import com.tibco.flogo.maven.test.dto.*;
 import org.apache.maven.doxia.markup.HtmlMarkup;
 import org.apache.maven.doxia.sink.Sink;
+import org.apache.maven.doxia.sink.SinkEventAttributes;
 import org.apache.maven.doxia.sink.impl.SinkEventAttributeSet;
 import org.apache.maven.doxia.util.DoxiaUtils;
 
@@ -32,7 +31,6 @@ public class FlogoTestReportGenerator {
 
     private static void sinkIcon(String type, Sink sink) {
         sink.figure();
-
         if (type.startsWith("junit.framework") || "skipped".equals(type)) {
             sink.figureGraphics("images/icon_warning_sml.gif");
         } else if (type.startsWith("success")) {
@@ -40,7 +38,6 @@ public class FlogoTestReportGenerator {
         } else {
             sink.figureGraphics("images/icon_error_sml.gif");
         }
-
         sink.figure_();
     }
 
@@ -57,6 +54,22 @@ public class FlogoTestReportGenerator {
     private static void sinkCell(Sink sink, String text) {
         sink.tableCell();
         sink.text(text);
+        sink.tableCell_();
+    }
+
+    private static void sinkCellBold(Sink sink, String text) {
+        sink.tableCell();
+        sink.bold();
+        sink.text(text);
+        sink.bold();
+        sink.tableCell_();
+    }
+
+    private static void sinkCellMonospaced(Sink sink, String text) {
+        sink.tableCell();
+        sink.monospaced();
+        sink.text(text);
+        sink.monospaced_();
         sink.tableCell_();
     }
 
@@ -110,7 +123,7 @@ public class FlogoTestReportGenerator {
         sink.head();
 
         sink.title();
-        sink.text("Flogo Report");
+        sink.text("Flogo Unit Test Report");
         sink.title_();
 
         sink.head_();
@@ -129,7 +142,7 @@ public class FlogoTestReportGenerator {
         sink.sectionTitle1_();
         sink.section1_();
 
-        constructSummarySection(sink);
+        //constructSummarySection(sink);
 
         constructSuiteListSection(sink);
         contructTestCaseSection(sink);
@@ -149,57 +162,130 @@ public class FlogoTestReportGenerator {
         sink.tableCell_();
     }*/
 
+    private void constructAssertionDetailsSection(Sink sink, Suite suite) {
+        sink.section2();
+        sink.sectionTitle3();
+        sink.text( " Assertion Failure Details for " + suite.suiteName);
+        sink.sectionTitle3_();
+
+        sinkLineBreak(sink);
+        sink.table();
+        sink.tableRows(new int[]{LEFT, LEFT, LEFT, LEFT, LEFT, LEFT}, true);
+        sink.tableRow();
+        sinkHeader(sink, "Test Case Name");
+        sinkHeader(sink, "Flow Name");
+        sinkHeader(sink, "Activity Name");
+        sinkHeader(sink, "Assertion Name");
+        sinkHeader(sink, "Assertion Expression");
+        sinkHeader(sink, "Evaluated expression");
+        sink.tableRow_();
+        for ( int i=0; i < suite.testCases.size(); i++ ) {
+            TestCase testCase = suite.testCases.get(i);
+            if ( testCase.testResult.skippedAssertions == 0 && testCase.testResult.failedAssertions == 0 ) {
+                continue;
+            }
+            for ( int j=0; j < testCase.activities.size(); j++ ) {
+
+                Activity activity = testCase.activities.get(j);
+                if (activity.assertionResult == null) {
+                    continue;
+                }
+                for ( int k=0; k < activity.assertionResult.size(); k++ ) {
+                    AssertionResult assertionResult = activity.assertionResult.get(k);
+                    if ( !assertionResult.status.equals( "fail" ) ) {
+                        continue;
+                    }
+
+                    sink.tableRow( ) ;
+                    sinkCell( sink, testCase.testName);
+                    sinkCell( sink, testCase.flowName);
+                    sinkCell( sink, activity.name);
+                    sinkCell( sink, assertionResult.name) ;
+                    sinkCellMonospaced( sink, assertionResult.expression);
+                    sinkCellMonospaced( sink, assertionResult.expressionEvaluated);
+
+                    sink.tableRow_();
+//                    SinkEventAttributeSet event = new SinkEventAttributeSet();
+//                    event.addAttribute(SinkEventAttributes.ROWSPAN, "6");
+//                    sink.tableRow( event);
+//                    sink.tableRow_();
+
+                }
+
+            }
+
+        }
+        sink.table_();
+        sink.section2_();
+    }
     private void contructTestCaseSection(Sink sink) {
 
         sink.section1();
-        sink.sectionTitle2();
-        sink.text("Test Suite Test Cases ");
-        sink.sectionTitle2_();
-
+        sink.sectionTitle1();
+        sink.text("Test Cases List");
+        sink.sectionTitle1_();
         sinkLineBreak(sink);
 
         for (int i = 0; i < this.report.report.suites.size(); i++) {
 
             Suite suite = this.report.report.suites.get(i);
-            sink.section2();
-            sink.sectionTitle3();
+            sink.section1();
+            sink.sectionTitle2();
             sink.text(suite.suiteName);
-            sink.sectionTitle3_();
+            sink.sectionTitle2_();
             sink.table();
             sink.tableRows(new int[]{LEFT, LEFT, LEFT, LEFT, LEFT, LEFT, LEFT, LEFT}, true);
             sink.tableRow();
             sinkHeader(sink, "");
             sinkHeader(sink, "Test Case Name");
             sinkHeader(sink, "Flow Name");
+            sinkHeader(sink, "Test Case Status");
             sinkHeader(sink, "Total Assertions");
             sinkHeader(sink, "Success Assertions");
             sinkHeader(sink, "Failure Assertions");
             sinkHeader(sink, "Skipped Assertions");
-            sinkHeader(sink, "Success Rate");
             sink.tableRow_();
             for (int j = 0; j < suite.testCases.size(); j++) {
                 TestCase testCase = suite.testCases.get(j);
                 sink.tableRow();
                 sink.tableCell();
+                sink.link( "#test" );
                 if (testCase.testResult.failedAssertions > 0 || testCase.testResult.skippedAssertions > 0) {
                     sinkIcon("failure", sink);
                 } else {
                     sinkIcon("success", sink);
                 }
+                sink.link_();
 
                 sink.tableCell_();
                 sinkCell(sink, testCase.testName);
                 sinkCell(sink, testCase.flowName);
+                if ( testCase.testResult.failedAssertions > 0 || testCase.testResult.skippedAssertions > 0) {
+                    sinkCellBold (sink, "failed");
+                } else {
+                    sinkCell (sink, "passed");
+                }
                 sinkCell(sink, String.valueOf(testCase.testResult.totalAssertions));
                 sinkCell(sink, String.valueOf(testCase.testResult.successAssertions));
-                sinkCell(sink, String.valueOf(testCase.testResult.failedAssertions));
-                sinkCell(sink, String.valueOf(testCase.testResult.skippedAssertions));
-                sinkCell(sink, getPercentage(testCase.testResult.totalAssertions, (testCase.testResult.failedAssertions + testCase.testResult.skippedAssertions)));
+                if (testCase.testResult.failedAssertions > 0) {
+                    sinkCellBold(sink, String.valueOf(testCase.testResult.failedAssertions));
+                } else {
+                    sinkCell(sink, String.valueOf(testCase.testResult.failedAssertions));
+                }
+
+                if (testCase.testResult.skippedAssertions > 0) {
+                    sinkCellBold(sink, String.valueOf(testCase.testResult.skippedAssertions));
+                } else {
+                    sinkCell(sink, String.valueOf(testCase.testResult.skippedAssertions));
+                }
                 sink.tableRow_();
             }
             sink.table_();
+            constructAssertionDetailsSection( sink, suite );
+
 
         }
+        sink.section1_();
 
 
     }
@@ -207,9 +293,9 @@ public class FlogoTestReportGenerator {
     private void constructSuiteListSection(Sink sink) {
         sink.section1();
 
-        sink.sectionTitle2();
-        sink.text("Test Suites List");
-        sink.sectionTitle2_();
+        sink.sectionTitle1();
+        sink.text("Test Suites Summary");
+        sink.sectionTitle1_();
 
         sinkLineBreak(sink);
 
@@ -217,7 +303,7 @@ public class FlogoTestReportGenerator {
 
         sink.tableRows(new int[]{LEFT, LEFT, LEFT, LEFT, LEFT, LEFT}, true);
 
-        sinkHeader(sink, "Test Suite");
+        sinkHeader(sink, "Test Suite Name");
 
         sinkHeader(sink, "Tests");
 
@@ -241,7 +327,7 @@ public class FlogoTestReportGenerator {
             sinkCell(sink, String.valueOf(suite.suiteResult.totalTests - suite.suiteResult.failedTests));
             sinkCell(sink, String.valueOf(suite.suiteResult.failedTests));
             sinkCell(sink, String.valueOf(suite.suiteResult.errorFailed));
-            sinkCell(sink, String.valueOf(getPercentage(suite.suiteResult.totalTests, suite.suiteResult.failedTests)));
+            sinkCell(sink, getPercentage(suite.suiteResult.totalTests, suite.suiteResult.failedTests));
         }
 
         sink.tableRow_();
@@ -290,7 +376,7 @@ public class FlogoTestReportGenerator {
 
         sinkCell(sink, String.valueOf(report.result.totalSuites - report.result.failedSuites));
 
-        sinkCell(sink, String.valueOf(report.result.totalSuites));
+        sinkCell(sink, String.valueOf(report.result.failedSuites));
 
         sinkCell(sink, getPercentage(report.result.totalSuites, report.result.failedSuites));
 

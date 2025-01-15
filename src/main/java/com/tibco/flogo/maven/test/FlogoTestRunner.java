@@ -2,6 +2,7 @@ package com.tibco.flogo.maven.test;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tibco.flogo.maven.test.dto.Root;
+import com.tibco.flogo.maven.utils.FileHelper;
 import org.apache.maven.plugin.MojoFailureException;
 
 import java.io.BufferedReader;
@@ -17,12 +18,7 @@ import java.util.List;
 public class FlogoTestRunner {
 
 
-    public static String readFile(String path, Charset encoding)
-            throws IOException {
 
-        byte[] encoded = Files.readAllBytes(Paths.get(path));
-        return new String(encoded, encoding);
-    }
 
     public void run() throws Exception {
         Process process = null;
@@ -43,7 +39,7 @@ public class FlogoTestRunner {
         System.out.println(result);
 
 
-        String content = readFile(Paths.get(FlogoTestConfig.INSTANCE.getTestOutputDir(), FlogoTestConfig.INSTANCE.getTestOutputFile() + ".testresult").toFile().getAbsolutePath(), Charset.defaultCharset());
+        String content = FileHelper.readFile(Paths.get(FlogoTestConfig.INSTANCE.getTestOutputDir(), FlogoTestConfig.INSTANCE.getTestOutputFile() + ".testresult").toFile().getAbsolutePath(), Charset.defaultCharset());
 
         ObjectMapper mapper = new ObjectMapper();
         Root root = mapper.readValue(content, Root.class);

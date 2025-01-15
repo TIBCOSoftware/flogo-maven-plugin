@@ -11,6 +11,7 @@ import org.apache.maven.plugins.annotations.Parameter;
 
 import java.io.File;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 
@@ -65,13 +66,11 @@ public class FlogoBuildMojo extends AbstractMojo {
 
             if (appFilePath == null || appFilePath.isEmpty()) {
                 // App not provided explicitly. Check for flogo app in the base folder.
-                String[] files = projectBaseDir.list((dir, name) -> name.endsWith(artifactId + ".flogo"));
-                if (files.length > 0) {
-                    if (Paths.get(projectBaseDir.getAbsolutePath(), files[0]).toFile().isFile()) {
-                        FlogoBuildConfig.INSTANCE.setAppPath(Paths.get(projectBaseDir.getAbsolutePath(), files[0]).toFile().getAbsolutePath());
-                    } else {
-                        throw new Exception("Flogo app now found in the base folder. Please provide the path to the flogo app file");
-                    }
+                appFilePath = Paths.get(projectBaseDir.getAbsolutePath(), artifactId+".flogo").toFile().getAbsolutePath();
+                if ( new File(appFilePath).isFile() ) {
+                    FlogoBuildConfig.INSTANCE.setAppPath( appFilePath);
+                } else {
+                    throw new Exception( "No flogo app found with name => " + (artifactId+".flogo") + " in the project directory");
                 }
             } else {
                 File file = new File(appFilePath);
@@ -81,13 +80,16 @@ public class FlogoBuildMojo extends AbstractMojo {
                     } else {
                         FlogoBuildConfig.INSTANCE.setAppPath(file.getAbsolutePath());
                     }
-
                 } else {
                     throw new Exception("Invalid Flogo App file path provided. Flogo path can be provided relative to the folder where the POM file is present or absolute path.");
                 }
             }
 
             VSIXExtractor.extract(flogoVSCodeExtensionPath);
+
+            FlogoBuildConfig.INSTANCE.setCustomExtensionsPath(customExtensionPath);
+            FlogoBuildConfig.INSTANCE.setEmsHome( emsHome);
+            FlogoBuildConfig.INSTANCE.setMqHome(mqHome);
             FlogoCLIRunner runner = new FlogoCLIRunner();
             runner.run();
 
