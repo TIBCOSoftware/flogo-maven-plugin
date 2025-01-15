@@ -1,8 +1,10 @@
 package com.tibco.flogo.maven.coverage;
 
-import java.util.ArrayList;
+import com.tibco.flogo.maven.coverage.dto.ActivityIO;
+
+import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public class FlowCoverage {
@@ -24,7 +26,22 @@ public class FlowCoverage {
 
     private Set<String> errorHandlerActivitiesExec = new HashSet<>();
 
-    private boolean processExecuted = false;
+    private String flowName;
+
+
+    private String testCaseName;
+
+
+    private boolean flowExecuted = false;
+
+    public String getFlowName() {
+        return flowName;
+    }
+
+    public void setFlowName(String flowName) {
+        this.flowName = flowName;
+    }
+
 
     public Set<String> getTransitions() {
         return transitions;
@@ -61,12 +78,21 @@ public class FlowCoverage {
         return errorHandlerActivitiesExec;
     }
 
-    public boolean isProcessExecuted() {
-        return processExecuted;
+    public boolean isFlowExecuted() {
+        return flowExecuted;
     }
 
 
-    public void setProcessExecuted(boolean processExecuted) {
-        this.processExecuted = processExecuted;
+    public void setFlowExecuted(boolean flowExecuted) {
+        this.flowExecuted = flowExecuted;
     }
+
+    public String getTestCaseName() {
+        return testCaseName;
+    }
+
+    public void setTestCaseName(String testCaseName) {
+        this.testCaseName = testCaseName;
+    }
+
 }

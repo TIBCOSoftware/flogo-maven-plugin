@@ -33,6 +33,8 @@ public class FlogoCoverageReport extends AbstractMavenReport {
     @Parameter(property = "testSuiteName", defaultValue = "")
     private String testSuiteName;
 
+    @Parameter(property = "preserveIO", defaultValue = "false")
+    private boolean preserveIO;
 
     @Parameter(defaultValue = "${project.build.directory}", property = "outputDir", required = true)
     private File outputDirectory;
@@ -50,18 +52,18 @@ public class FlogoCoverageReport extends AbstractMavenReport {
 
     @Override
     public String getDescription(Locale arg0) {
-        return "Flogo Test Report";
+        return "Flogo Coverage Report";
     }
 
     @Override
     public String getName(Locale arg0) {
 
-        return "flogoio";
+        return "Flogo Coverage Report";
     }
 
     @Override
     public String getOutputName() {
-        return "flogoio";
+        return "flogo Coverage Report";
     }
 
 
@@ -102,15 +104,16 @@ public class FlogoCoverageReport extends AbstractMavenReport {
             FlogoTestConfig.INSTANCE.setTestOutputFile(appfileName);
 
             getLog().info("Generating report ..");
-            FlogoTestReportGenerator gen = new FlogoTestReportGenerator();
             String content = FileHelper.readFile(Paths.get(FlogoTestConfig.INSTANCE.getTestOutputDir(), FlogoTestConfig.INSTANCE.getTestOutputFile() + ".testresult").toFile().getAbsolutePath(), Charset.defaultCharset());
 
             ObjectMapper mapper = new ObjectMapper();
             Root root = mapper.readValue(content, Root.class);
-            gen.generateReport(root, getSink());
 
             AppParser parser = new AppParser();
             parser.parse(appFilePath, root);
+
+            FlogoCoverageReportGenerator report = new FlogoCoverageReportGenerator();
+            report.generateReport( parser, getSink());
 
         } catch (Exception e) {
             throw new MavenReportException(e.getMessage());

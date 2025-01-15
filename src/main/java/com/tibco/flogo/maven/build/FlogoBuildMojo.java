@@ -57,6 +57,7 @@ public class FlogoBuildMojo extends AbstractMojo {
                 Files.createDirectory(outputDirectory.toPath());
             }
 
+
             FlogoBuildConfig.INSTANCE.setOutputPath(outputDirectory.getPath());
             FlogoBuildConfig.INSTANCE.setArtifactId(artifactId);
 

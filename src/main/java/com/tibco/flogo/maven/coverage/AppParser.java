@@ -1,29 +1,28 @@
 package com.tibco.flogo.maven.coverage;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.tibco.flogo.maven.coverage.dto.Data;
+import com.tibco.flogo.maven.coverage.dto.*;
 import com.tibco.flogo.maven.coverage.dto.Link;
-import com.tibco.flogo.maven.coverage.dto.App;
-import com.tibco.flogo.maven.coverage.dto.Task;
 import com.tibco.flogo.maven.test.dto.*;
 import com.tibco.flogo.maven.utils.FileHelper;
+import com.tibco.flogo.maven.utils.Utils;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class AppParser {
 
-
+    AppCoverage coverage = new AppCoverage();
     AppCoverageStatistics appCoverageStatistics;
     public void parse(String appPath, Root root) throws Exception {
-        AppCoverage coverage = new AppCoverage();
+
 
         populateAppData(appPath, coverage);
         populateExecutedData( coverage, root);
 
+        appCoverageStatistics = new AppCoverageStatistics(coverage);
+        appCoverageStatistics.generate();
 
     }
 
@@ -31,23 +30,34 @@ public class AppParser {
 
         for ( int i =0; i < root.report.suites.size(); i++ ) {
            Suite suite = root.report.suites.get(i);
+            TestSuiteIOCoverage testSuiteCoverage = new TestSuiteIOCoverage();
+            coverage.getTestIOMap().put(suite.suiteName, testSuiteCoverage);
+
            for ( int j =0 ; j < suite.testCases.size(); j++ ) {
                TestCase testCase = suite.testCases.get(j);
                FlowCoverage flowCoverage = null;
                if (coverage.getFlowMap().containsKey(testCase.flowName)) {
                    flowCoverage = coverage.getFlowMap().get(testCase.flowName);
+                   flowCoverage.setFlowExecuted( true);
                } else {
                    throw new Exception( "Flow not found in the flow map");
                }
-               addActivitiesExecuted( flowCoverage, testCase.activities);
-               addActivitiesErrorHandlerExecuted( flowCoverage, testCase.errorHandler.activities);
+               TestIOCoverage testIOCoverage = new TestIOCoverage();
+               testSuiteCoverage.getTestIOCoverageMap().put(testCase.testName, testIOCoverage);
+
+               FlowIOCoverage flowIOCoverage = new FlowIOCoverage();
+               flowIOCoverage.setStartingFlow( true);
+               testIOCoverage.getFlowIOCoverageMap().put(testCase.flowName, flowIOCoverage);
+
+               addActivitiesExecuted( flowCoverage, testCase.activities, flowIOCoverage);
+               addActivitiesErrorHandlerExecuted( flowCoverage, testCase.errorHandler.activities, flowIOCoverage);
                addExecutedLinks( flowCoverage, testCase.links);
                addExecutedErrorHandlerLinks( flowCoverage, testCase.errorHandler.links);
 
                if (testCase.subFlow != null && !testCase.subFlow.isEmpty()) {
                    for (Map.Entry<String, TestCase> entry : testCase.subFlow.entrySet()) {
                         TestCase subTestCase = entry.getValue();
-                        processSubFlowData( coverage, subTestCase);
+                        processSubFlowData( coverage, subTestCase , testIOCoverage);
                    }
                }
            }
@@ -56,22 +66,25 @@ public class AppParser {
 
     }
 
-    private void processSubFlowData( AppCoverage coverage, TestCase testCase) throws Exception {
+    private void processSubFlowData( AppCoverage coverage, TestCase testCase, TestIOCoverage testIOCoverage) throws Exception {
         FlowCoverage flowCoverage = null;
         if (coverage.getFlowMap().containsKey(testCase.flowName)) {
             flowCoverage = coverage.getFlowMap().get(testCase.flowName);
+            flowCoverage.setFlowExecuted( true);
         } else {
             throw new Exception( "Flow not found in the flow map");
         }
-        addActivitiesExecuted( flowCoverage, testCase.activities);
-        addActivitiesErrorHandlerExecuted( flowCoverage, testCase.errorHandler.activities);
+        FlowIOCoverage flowIOCoverage = new FlowIOCoverage();
+        testIOCoverage.getFlowIOCoverageMap().put(testCase.flowName, flowIOCoverage);
+        addActivitiesExecuted( flowCoverage, testCase.activities, flowIOCoverage);
+        addActivitiesErrorHandlerExecuted( flowCoverage, testCase.errorHandler.activities, flowIOCoverage);
         addExecutedLinks( flowCoverage, testCase.links);
         addExecutedErrorHandlerLinks( flowCoverage, testCase.errorHandler.links);
 
         if (testCase.subFlow != null && !testCase.subFlow.isEmpty()) {
             for (Map.Entry<String, TestCase> entry : testCase.subFlow.entrySet()) {
                 TestCase subTestCase = entry.getValue();
-                processSubFlowData( coverage, subTestCase);
+                processSubFlowData( coverage, subTestCase, testIOCoverage);
             }
         }
     }
@@ -89,6 +102,7 @@ public class AppParser {
                 flowCoverage = coverage.getFlowMap().get(resource.name);
             } else {
                 flowCoverage = new FlowCoverage();
+                flowCoverage.setFlowName( resource.name);
                 coverage.getFlowMap().put(resource.name, flowCoverage);
             }
             addLinks(flowCoverage, resource.links);
@@ -124,23 +138,29 @@ public class AppParser {
         }
     }
 
-    private void addActivitiesExecuted( FlowCoverage coverage, List<Activity> activities) {
+    private void addActivitiesExecuted( FlowCoverage coverage, List<Activity> activities , FlowIOCoverage flowIOCoverage) throws Exception {
         if (activities == null) {
             return;
         }
         for ( int i =0; i < activities.size(); i++ ) {
             Activity activity = activities.get(i);
             coverage.getActivitiesExec().add( activity.name);
+            String input = new ObjectMapper().writeValueAsString( activity.input);
+            String output = new ObjectMapper().writeValueAsString( activity.output);
+            flowIOCoverage.getActivityList().add( new ActivityIO( activity.name, input, output, "" ));
         }
     }
 
-    private void addActivitiesErrorHandlerExecuted( FlowCoverage coverage, List<Activity> activities) {
+    private void addActivitiesErrorHandlerExecuted( FlowCoverage coverage, List<Activity> activities , FlowIOCoverage flowIOCoverage) throws Exception {
         if (activities == null) {
             return;
         }
         for ( int i =0; i < activities.size(); i++ ) {
             Activity activity = activities.get(i);
             coverage.getErrorHandlerActivitiesExec().add( activity.name);
+            String input = new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString( activity.input);
+            String output = new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString( activity.output);
+            flowIOCoverage.getActivityErrorList().add( new ActivityIO( activity.name, input, output, "" ));
         }
     }
 
@@ -172,6 +192,10 @@ public class AppParser {
         }
     }
 
+    public AppCoverage getCoverage() {
+        return coverage;
+    }
+
     public AppCoverageStatistics getAppCoverageStatistics() {
         return appCoverageStatistics;
     }
@@ -184,28 +208,73 @@ public class AppParser {
     public class AppCoverageStatistics {
 
         AppCoverage appCoverage;
-
+        Map<String,FlowStats> map = new HashMap<>();
         public AppCoverageStatistics( AppCoverage coverage) {
             this.appCoverage = coverage;
         }
 
+        public void generate() throws Exception {
+            for (Map.Entry<String, FlowCoverage> entry : appCoverage.getFlowMap().entrySet()) {
+                FlowStats flowStats = new FlowStats();
+                if (entry.getValue() == null ) {
+                    throw new Exception( "No statistics found for flow " +  entry.getKey() );
+                }
+                flowStats.generateFlowStats( entry.getValue() );
+                map.put( entry.getKey(), flowStats );
+            }
+        }
 
         public List<String> getFlows() {
             List<String> flows = new ArrayList<>( this.appCoverage.getFlowMap().keySet() );
             return flows;
         }
 
-        public FlowStats getFlowStatistics( String flowName ) throws Exception {
-            FlowStats flowStats = new FlowStats();
-
-            FlowCoverage flowCoverage = this.appCoverage.getFlowMap().get( flowName);
-            if (flowCoverage == null ) {
-                throw new Exception( "No statistics found for flow " +  flowName);
+        public String getAppFlowStats() {
+            int total = 0;
+            int nonExecuted = 0;
+            for ( FlowStats flowStats : map.values() ) {
+                total++;
+                if  (!flowStats.executed ) {
+                    nonExecuted++;
+                }
             }
 
+            return Utils.getPercentage( total, nonExecuted );
+        }
 
-            return flowStats;
+        public String getNonExecutedFlows() {
+            List<String> nonExecFlows = new ArrayList<>();
+            for ( FlowStats flowStats : map.values() ) {
+                if  (!flowStats.executed ) {
+                    nonExecFlows.add( flowStats.flowName);
+                }
+            }
+            return String.join( "," , nonExecFlows );
+        }
 
+        public String getAppFlowActivityStats() {
+                int total = 0;
+                int nonExecuted = 0;
+                for ( FlowStats flowStats : map.values() ) {
+                    total += ( flowStats.totalMainActivities + flowStats.totalErrorActivities);
+                    nonExecuted += ( (flowStats.totalMainActivities - flowStats.executedMainActivities) + (flowStats.totalErrorActivities - flowStats.executedErrorActivities));
+                }
+                return Utils.getPercentage( total, nonExecuted );
+        }
+
+        public String getAppFlowLinkStats() {
+            int total = 0;
+            int nonExecuted = 0;
+            for ( FlowStats flowStats : map.values() ) {
+                total += ( flowStats.totalMainLinks + flowStats.totalErrorLinks);
+                nonExecuted += ( (flowStats.totalMainLinks - flowStats.executedMainLinks) + (flowStats.totalErrorLinks - flowStats.executedErrorLinks));
+            }
+            return Utils.getPercentage( total, nonExecuted );
+        }
+
+
+        public FlowStats getFlowStatistics( String flowName) throws Exception {
+            return map.get( flowName);
         }
     }
 
@@ -219,10 +288,71 @@ public class AppParser {
         public int executedErrorActivities;
         public int totalErrorLinks;
         public int executedErrorLinks;
+        public String totalMainActivitiesList;
+        public String nonExecutedMainActivitiesList;
+        public String totalMainLinksList;
+        public String nonExecutedMainLinksList;
+        public String totalErrorActivitiesList;
+        public String nonExecutedErrorActivitiesList;
+        public String totalErrorLinksList;
+        public String nonExecutedErrorLinksList;
+        public boolean executed;
+
+        public void generateFlowStats( FlowCoverage coverage) {
+            flowName = coverage.getFlowName();
+            executed = coverage.isFlowExecuted();
+
+            totalMainActivities = coverage.getActivities().size();
+            executedMainActivities = coverage.getActivitiesExec().size();
+
+            totalMainLinks = coverage.getTransitions().size();
+            executedMainLinks = coverage.getTransitionExec().size();
+
+            totalErrorActivities = coverage.getErrorHandlerActivities().size();
+            executedErrorActivities = coverage.getErrorHandlerActivitiesExec().size();
+
+            totalErrorLinks = coverage.getErrorHandlerTransitions().size();
+            executedErrorLinks = coverage.getErrorHandlerTransitionExec().size();
+
+            Set<String> nonExecSet = new TreeSet<>( coverage.getActivities());
+            totalMainActivitiesList = String.join( ",", nonExecSet);
+            nonExecSet.removeAll( coverage.getActivitiesExec());
+            nonExecutedMainActivitiesList = String.join( ",", nonExecSet);
+
+            Set<String> nonExecLinkSet = new TreeSet<>( coverage.getTransitions());
+            totalMainLinksList = String.join( "," , nonExecLinkSet);
+
+            nonExecLinkSet.removeAll( coverage.getTransitionExec());
+            nonExecutedMainLinksList = String.join( ",", nonExecLinkSet);
+
+            Set<String> nonExecErrorSet = new TreeSet<>( coverage.getErrorHandlerActivities());
+            totalErrorActivitiesList = String.join( "," , nonExecErrorSet);
+            nonExecErrorSet.removeAll( coverage.getErrorHandlerActivitiesExec());
+            nonExecutedErrorActivitiesList = String.join( ",", nonExecErrorSet);
+
+            Set<String> nonExecLinkErrorSet = new TreeSet<>( coverage.getErrorHandlerTransitions());
+            totalErrorLinksList = String.join( "," , nonExecLinkErrorSet);
+            nonExecLinkErrorSet.removeAll( coverage.getErrorHandlerTransitionExec());
+            nonExecutedErrorLinksList = String.join( ",", nonExecLinkErrorSet);
+
+
+        }
 
         public String getMainFlowActivityPercentage() {
-            return "";
+            return Utils.getPercentage( totalMainActivities, totalMainActivities - executedMainActivities) ;
         }
+        public String getMainFlowLinkPercentage() {
+            return Utils.getPercentage( totalMainLinks, totalMainLinks - executedMainLinks) ;
+        }
+        public String getErrorFlowActivityPercentage() {
+            return Utils.getPercentage( totalErrorActivities, totalErrorActivities - executedErrorActivities) ;
+        }
+        public String getErrorFlowLinkPercentage() {
+            return Utils.getPercentage( totalErrorLinks, totalErrorLinks - executedErrorLinks) ;
+        }
+
+
+
     }
 }
 

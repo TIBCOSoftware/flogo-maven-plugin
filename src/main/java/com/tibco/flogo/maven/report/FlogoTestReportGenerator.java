@@ -1,6 +1,7 @@
 package com.tibco.flogo.maven.report;
 
 import com.tibco.flogo.maven.test.dto.*;
+import com.tibco.flogo.maven.utils.Utils;
 import org.apache.maven.doxia.markup.HtmlMarkup;
 import org.apache.maven.doxia.sink.Sink;
 import org.apache.maven.doxia.sink.SinkEventAttributes;
@@ -19,9 +20,6 @@ public class FlogoTestReportGenerator {
     private static final Object[] TAG_TYPE_START = {HtmlMarkup.TAG_TYPE_START};
 
     private static final Object[] TAG_TYPE_END = {HtmlMarkup.TAG_TYPE_END};
-
-    private static DecimalFormat format = new DecimalFormat("#.##");
-
 
     Root report;
 
@@ -165,7 +163,7 @@ public class FlogoTestReportGenerator {
     private void constructAssertionDetailsSection(Sink sink, Suite suite) {
         sink.section2();
         sink.sectionTitle3();
-        sink.text( " Assertion Failure Details for " + suite.suiteName);
+        sink.text( " Failed Assertions in suite  " + suite.suiteName);
         sink.sectionTitle3_();
 
         sinkLineBreak(sink);
@@ -221,10 +219,7 @@ public class FlogoTestReportGenerator {
     private void contructTestCaseSection(Sink sink) {
 
         sink.section1();
-        sink.sectionTitle1();
-        sink.text("Test Cases List");
-        sink.sectionTitle1_();
-        sinkLineBreak(sink);
+
 
         for (int i = 0; i < this.report.report.suites.size(); i++) {
 
@@ -317,20 +312,20 @@ public class FlogoTestReportGenerator {
 
         sink.tableRow_();
 
-        sink.tableRow();
 
         for (int i = 0; i < this.report.report.suites.size(); i++) {
 
             Suite suite = this.report.report.suites.get(i);
+            sink.tableRow();
             sinkCell(sink, suite.suiteName);
             sinkCell(sink, String.valueOf(suite.suiteResult.totalTests));
             sinkCell(sink, String.valueOf(suite.suiteResult.totalTests - suite.suiteResult.failedTests));
             sinkCell(sink, String.valueOf(suite.suiteResult.failedTests));
             sinkCell(sink, String.valueOf(suite.suiteResult.errorFailed));
-            sinkCell(sink, getPercentage(suite.suiteResult.totalTests, suite.suiteResult.failedTests));
+            sinkCell(sink, Utils.getPercentage(suite.suiteResult.totalTests, suite.suiteResult.failedTests));
+            sink.tableRow_();
         }
 
-        sink.tableRow_();
 
         sink.table_();
 
@@ -378,7 +373,7 @@ public class FlogoTestReportGenerator {
 
         sinkCell(sink, String.valueOf(report.result.failedSuites));
 
-        sinkCell(sink, getPercentage(report.result.totalSuites, report.result.failedSuites));
+        sinkCell(sink, Utils.getPercentage(report.result.totalSuites, report.result.failedSuites));
 
         sink.tableRow_();
 
@@ -392,18 +387,6 @@ public class FlogoTestReportGenerator {
         sink.section1_();
     }
 
-    private String getPercentage(int total, int failure) {
-        float successRate = 0;
-        if (failure == 0) {
-            successRate = 100;
-        } else if (total == failure) {
-            successRate = 0;
-        } else {
-            successRate = ((float) (((total - failure)) / (float) total)) * 100;
-        }
-
-        return String.valueOf(format.format(successRate)) + "%";
-    }
 
     /*private static void sinkLink( Sink sink, String href )
     {
