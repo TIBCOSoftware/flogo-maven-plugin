@@ -10,6 +10,7 @@ import com.tibco.flogo.maven.utils.FileHelper;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -23,7 +24,7 @@ public class AppParser {
         populateAppData(appPath, coverage);
         populateExecutedData( coverage, root);
 
-        System.out.println(coverage);
+
     }
 
     private void populateExecutedData( AppCoverage coverage, Root root ) throws Exception {
@@ -184,14 +185,42 @@ public class AppParser {
 
         AppCoverage appCoverage;
 
-        public
-
-        public String getActivityStat()
-        {
-            return "";
+        public AppCoverageStatistics( AppCoverage coverage) {
+            this.appCoverage = coverage;
         }
 
-        public String getTransitionStats() {
+
+        public List<String> getFlows() {
+            List<String> flows = new ArrayList<>( this.appCoverage.getFlowMap().keySet() );
+            return flows;
+        }
+
+        public FlowStats getFlowStatistics( String flowName ) throws Exception {
+            FlowStats flowStats = new FlowStats();
+
+            FlowCoverage flowCoverage = this.appCoverage.getFlowMap().get( flowName);
+            if (flowCoverage == null ) {
+                throw new Exception( "No statistics found for flow " +  flowName);
+            }
+
+
+            return flowStats;
+
+        }
+    }
+
+    public class FlowStats {
+        public String flowName;
+        public int totalMainActivities;
+        public int executedMainActivities;
+        public int totalMainLinks;
+        public int executedMainLinks;
+        public int totalErrorActivities;
+        public int executedErrorActivities;
+        public int totalErrorLinks;
+        public int executedErrorLinks;
+
+        public String getMainFlowActivityPercentage() {
             return "";
         }
     }
