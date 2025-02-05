@@ -46,6 +46,9 @@ public class FlogoTestMojo extends AbstractMojo {
     @Parameter(property = "preserveIO", defaultValue = "false")
     private boolean preserveIO;
 
+    @Parameter(property = "suites", defaultValue = "")
+    private String suites;
+
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         FlogoTestConfig.INSTANCE.reset();
@@ -90,6 +93,7 @@ public class FlogoTestMojo extends AbstractMojo {
 
             FlogoTestConfig.INSTANCE.setAppBinary(Paths.get(outputDirectory.getAbsolutePath(), artifactId).toFile().getAbsolutePath());
             FlogoTestConfig.INSTANCE.setTestFilePath(testFilePath);
+            FlogoTestConfig.INSTANCE.setSuites( suites);
             File testresult = new File(Paths.get(outputDirectory.getAbsolutePath(), "testresult").toFile().getAbsolutePath());
             if (!testresult.exists()) {
                 Files.createDirectory(testresult.toPath());

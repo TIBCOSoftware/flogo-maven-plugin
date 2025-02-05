@@ -5,6 +5,7 @@ public class FlogoBuildConfig {
     public static FlogoBuildConfig INSTANCE = new FlogoBuildConfig();
 
     private String outputPath;
+    private String outputPathPlatform;
     private String flogoCLIPath;
     private String flogoRuntimePath;
     private String flogoConnectorsPath;
@@ -14,6 +15,24 @@ public class FlogoBuildConfig {
     private String version;
     private String emsHome;
     private String mqHome;
+    private boolean crossPlatform;
+
+    public String getOutputPathPlatform() {
+        return outputPathPlatform;
+    }
+
+    public void setOutputPathPlatform(String outputPathPlatform) {
+        this.outputPathPlatform = outputPathPlatform;
+    }
+
+    public boolean getCrossPlatform() {
+        return crossPlatform;
+    }
+
+    public void setCrossPlatform(boolean crossPlatform) {
+        this.crossPlatform = crossPlatform;
+    }
+
 
     public String getEmsHome() {
         return emsHome;

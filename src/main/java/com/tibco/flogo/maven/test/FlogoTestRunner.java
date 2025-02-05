@@ -61,6 +61,8 @@ public class FlogoTestRunner {
         launchConfig.add(FlogoTestConfig.INSTANCE.getTestOutputDir());
         launchConfig.add("--result-filename");
         launchConfig.add(FlogoTestConfig.INSTANCE.getTestOutputFile());
+        launchConfig.add("--test-suites");
+        launchConfig.add(FlogoTestConfig.INSTANCE.getSuites());
         if (FlogoTestConfig.INSTANCE.getPreserveIO()) {
             launchConfig.add("--test-preserve-io");
         }

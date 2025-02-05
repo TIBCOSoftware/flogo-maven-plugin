@@ -12,9 +12,13 @@ public class FlogoCLIRunner {
 
     public void run() throws Exception {
         runBuild(getLaunchConfig());
-//        if (!System.getProperty("os.name").toLowerCase().contains("linux")) {
-//            runBuild(getLaunchConfigLinux());
-//        }
+
+
+        if (!System.getProperty("os.name").toLowerCase().contains("linux")) {
+            if ( FlogoBuildConfig.INSTANCE.getCrossPlatform() ) {
+                runBuild(getLaunchConfigLinux());
+            }
+        }
     }
 
     public void runBuild(List<String> launchConfig) throws Exception {
@@ -50,7 +54,7 @@ public class FlogoCLIRunner {
 
 
     private List<String> getLaunchConfig() {
-        List<String> launchConfig = new ArrayList<String>();
+        List<String> launchConfig = new ArrayList<>();
         launchConfig.add(FlogoBuildConfig.INSTANCE.getFlogoCLIPath());
         launchConfig.add("app");
         launchConfig.add("build");
@@ -72,7 +76,7 @@ public class FlogoCLIRunner {
     }
 
     private List<String> getLaunchConfigLinux() {
-        List<String> launchConfig = new ArrayList<String>();
+        List<String> launchConfig = new ArrayList<>();
         launchConfig.add(FlogoBuildConfig.INSTANCE.getFlogoCLIPath());
         launchConfig.add("app");
         launchConfig.add("build");
@@ -82,10 +86,12 @@ public class FlogoCLIRunner {
         launchConfig.add(FlogoBuildConfig.INSTANCE.getFlogoRuntimePath());
         launchConfig.add("-c");
         launchConfig.add(FlogoBuildConfig.INSTANCE.getFlogoConnectorsPath());
+        launchConfig.add("-e");
+        launchConfig.add(FlogoBuildConfig.INSTANCE.getCustomExtensionsPath());
         launchConfig.add("-o");
-        launchConfig.add(FlogoBuildConfig.INSTANCE.getOutputPath());
+        launchConfig.add(FlogoBuildConfig.INSTANCE.getOutputPathPlatform());
         launchConfig.add("-n");
-        launchConfig.add(FlogoBuildConfig.INSTANCE.getArtifactId() + "-linux-amd64");
+        launchConfig.add("flogo-engine");
         launchConfig.add("-p");
         launchConfig.add("linux/amd64");
         launchConfig.add("-d");

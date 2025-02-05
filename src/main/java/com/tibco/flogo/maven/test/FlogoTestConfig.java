@@ -8,6 +8,9 @@ public class FlogoTestConfig {
     private String testOutputFile;
     private boolean preserveIO;
 
+
+    private String suites;
+
     public String getAppBinary() {
         return appBinary;
     }
@@ -47,6 +50,15 @@ public class FlogoTestConfig {
     public void setPreserveIO(boolean preserveIO) {
         this.preserveIO = preserveIO;
     }
+
+    public String getSuites() {
+        return suites;
+    }
+
+    public void setSuites(String suites) {
+        this.suites = suites;
+    }
+
 
     public void reset() {
         INSTANCE = new FlogoTestConfig();

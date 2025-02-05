@@ -33,5 +33,21 @@
             </configuration>
         </component>
 
+        <component>
+            <role>org.apache.maven.AbstractMavenLifecycleParticipant</role>
+            <implementation>
+                com.tibco.flogo.maven.lifecycle.FlogoProjectLifeCycleListener
+            </implementation>
+            <role-hint>flogo</role-hint>
+            <isolated-realm>false</isolated-realm>
+            <requirements>
+                <requirement>
+                    <role>org.codehaus.plexus.logging.Logger</role>
+                    <role-hint>default</role-hint>
+                    <field-name>logger</field-name>
+                </requirement>
+            </requirements>
+        </component>
+
     </components>
 </component-set>

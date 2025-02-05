@@ -1,6 +1,7 @@
 package com.tibco.flogo.maven.build;
 
 import com.tibco.flogo.maven.build.helpers.FlogoBuildConfig;
+import org.apache.commons.lang3.SystemUtils;
 import org.codehaus.plexus.util.FileUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -12,7 +13,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.URI;
 import java.nio.file.*;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -23,7 +27,12 @@ public class VSIXExtractor {
         try {
 
             if (Files.isDirectory(Paths.get(vsixfile))) {
-                String flogoBinaryPath = Paths.get(vsixfile + File.separator + "bin" + File.separator + "flogo-vscode-cli").toString();
+                String flogoBinaryPath ;
+                if (SystemUtils.IS_OS_WINDOWS) {
+                    flogoBinaryPath = Paths.get(vsixfile + File.separator + "bin" + File.separator + "flogo-vscode-cli.exe").toString();
+                } else {
+                    flogoBinaryPath = Paths.get(vsixfile + File.separator + "bin" + File.separator + "flogo-vscode-cli").toString();
+                }
                 String flogoRuntimePath = Paths.get(vsixfile, "media", "flogo-runtime").toString();
                 String flogoConnPath = Paths.get(vsixfile, "media", "flogo-contributions", "wistudio", "v1", "contributions").toString();
                 FlogoBuildConfig.INSTANCE.init(flogoBinaryPath, flogoRuntimePath, flogoConnPath);
@@ -131,7 +140,12 @@ public class VSIXExtractor {
     public static void extractSingleFile(Path zipFile, String fileName, Path outputFile) throws IOException {
         // Wrap the file system in a try-with-resources statement
         // to auto-close it when finished and prevent a memory leak
-        try (FileSystem fileSystem = newFileSystem(zipFile)) {
+
+        final URI uri = URI.create("jar:" + zipFile.toUri());
+        final Map<String,String> env = new HashMap<>();
+        env.put("create", "true");
+
+        try (FileSystem fileSystem = newFileSystem(uri,env)) {
             Path fileToExtract = fileSystem.getPath(fileName);
             Files.copy(fileToExtract, outputFile);
         }

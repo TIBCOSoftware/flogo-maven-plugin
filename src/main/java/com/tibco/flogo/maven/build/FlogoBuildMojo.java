@@ -1,6 +1,7 @@
 package com.tibco.flogo.maven.build;
 
 import com.tibco.flogo.maven.build.helpers.FlogoBuildConfig;
+import org.apache.commons.lang3.SystemUtils;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -48,17 +49,48 @@ public class FlogoBuildMojo extends AbstractMojo {
     @Parameter(defaultValue = "${session}", readonly = true)
     private MavenSession session;
 
+    @Parameter(property = "crossPlatform")
+    private boolean crossPlatform;
+
+    @Parameter(property = "deployTarget", defaultValue = "")
+    private String deployTarget;
+
     public void execute() throws MojoExecutionException, MojoFailureException {
         try {
+
             FlogoBuildConfig.INSTANCE.reset();
             getLog().info("Flogo application binary build started");
+
+
+            if (session.getRequest().getGoals().contains("package")) {
+                if ( !deployTarget.equals( "platform") ){
+                    throw new Exception("Invalid deploy target: " + deployTarget);
+                }
+
+                if ( !SystemUtils.IS_OS_LINUX ) {
+                    if (!crossPlatform) {
+                        throw new Exception("Cross platform property must be set to true to deploy to platform");
+                    } else {
+                        getLog().warn( "The build will generate two binaries. One with local operating system for running the unit tests and one linux/amd64 for creating platform build. \nNote that the tests will not be run against the linux/amd64 binary ");
+                    }
+                }
+
+            }
+
+
 
             if (!outputDirectory.exists()) {
                 Files.createDirectory(outputDirectory.toPath());
             }
 
+            if (!Paths.get(outputDirectory.getAbsolutePath(),"platform").toFile().exists()) {
+                Files.createDirectory(Paths.get(outputDirectory.getAbsolutePath(),"platform").toFile().toPath());
+            }
+
+
 
             FlogoBuildConfig.INSTANCE.setOutputPath(outputDirectory.getPath());
+            FlogoBuildConfig.INSTANCE.setOutputPathPlatform(Paths.get(outputDirectory.getPath(), "platform").toFile().getAbsolutePath());
             FlogoBuildConfig.INSTANCE.setArtifactId(artifactId);
 
             if (flogoVSCodeExtensionPath == null || flogoVSCodeExtensionPath.isEmpty()) {
@@ -91,6 +123,7 @@ public class FlogoBuildMojo extends AbstractMojo {
             FlogoBuildConfig.INSTANCE.setCustomExtensionsPath(customExtensionPath);
             FlogoBuildConfig.INSTANCE.setEmsHome( emsHome);
             FlogoBuildConfig.INSTANCE.setMqHome(mqHome);
+            FlogoBuildConfig.INSTANCE.setCrossPlatform( crossPlatform);
             FlogoCLIRunner runner = new FlogoCLIRunner();
             runner.run();
 

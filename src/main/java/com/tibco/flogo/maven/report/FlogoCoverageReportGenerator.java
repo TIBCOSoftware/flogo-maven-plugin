@@ -61,6 +61,7 @@ public class FlogoCoverageReportGenerator {
     }
 
     private static void sinkCellMonospaced(Sink sink, String text) {
+
         sink.tableCell();
         sink.monospaced();
         sink.text(text);
