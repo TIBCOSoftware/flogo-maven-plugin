@@ -43,10 +43,10 @@ public class FlogoTestMojo extends AbstractMojo {
     @Parameter(property = "testFailureIgnore", defaultValue = "false")
     private boolean testFailureIgnore;
 
-    @Parameter(property = "preserveIO", defaultValue = "false")
+    @Parameter(property = "saveActivityInputOutput", defaultValue = "false")
     private boolean preserveIO;
 
-    @Parameter(property = "suites", defaultValue = "")
+    @Parameter(property = "selectiveTestSuites", defaultValue = "")
     private String suites;
 
     @Override
