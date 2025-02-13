@@ -119,7 +119,7 @@ public class FlogoActivityIOReportGenerator {
                 + "//";
     }
 
-    public void generateReportEmpty(AppParser parser, Sink sink) throws Exception {
+    public void generateReportEmpty( Sink sink) throws Exception {
         sink.head();
 
         sink.title();
@@ -138,6 +138,34 @@ public class FlogoActivityIOReportGenerator {
 
         sink.blockquote();
         sink.text( "The saveActivityInputOutput flag is set to false in the pom.xml. To see the Activity input and output report set te flag to true" );
+        sink.blockquote_();
+
+        sink.body_();
+
+        sink.flush();
+
+        sink.close();
+    }
+
+    public void generateReportEmptytestFile( Sink sink) throws Exception {
+        sink.head();
+
+        sink.title();
+        sink.text("Flogo Activity IO Report");
+        sink.title_();
+
+        sink.head_();
+
+        sink.body();
+
+        sink.section1();
+        sink.sectionTitle1();
+        sink.text("Flogo Coverage Report");
+        sink.sectionTitle1_();
+        sink.section1_();
+
+        sink.blockquote();
+        sink.text( "No tests were executed in for the flogo app." );
         sink.blockquote_();
 
         sink.body_();

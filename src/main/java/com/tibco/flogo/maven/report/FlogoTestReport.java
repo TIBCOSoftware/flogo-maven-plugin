@@ -86,12 +86,17 @@ public class FlogoTestReport extends AbstractMavenReport {
             }
 
             String appfileName = FilenameUtils.getBaseName( appFilePath);
+            FlogoTestReportGenerator gen = new FlogoTestReportGenerator();
 
+            File testReport = new File(Paths.get(outputDirectory.getAbsolutePath(), "testresult", appfileName + ".testresult").toString());
+            if (!testReport.exists()) {
+            gen.generateReportEmpty( getSink());
+            return;
+            }
             FlogoTestConfig.INSTANCE.setTestOutputDir(Paths.get(outputDirectory.getAbsolutePath(), "testresult").toFile().getAbsolutePath());
             FlogoTestConfig.INSTANCE.setTestOutputFile(appfileName);
 
             getLog().info("Generating report ..");
-            FlogoTestReportGenerator gen = new FlogoTestReportGenerator();
             String content = FileHelper.readFile(Paths.get(FlogoTestConfig.INSTANCE.getTestOutputDir(), FlogoTestConfig.INSTANCE.getTestOutputFile() + ".testresult").toFile().getAbsolutePath(), Charset.defaultCharset());
 
             ObjectMapper mapper = new ObjectMapper();

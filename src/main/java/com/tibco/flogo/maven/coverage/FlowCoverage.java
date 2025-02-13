@@ -34,6 +34,8 @@ public class FlowCoverage {
 
     private boolean flowExecuted = false;
 
+    private boolean hasErrorHandler = false;
+
     public String getFlowName() {
         return flowName;
     }
@@ -95,4 +97,11 @@ public class FlowCoverage {
         this.testCaseName = testCaseName;
     }
 
+    public boolean isHasErrorHandler() {
+        return hasErrorHandler;
+    }
+
+    public void setHasErrorHandler(boolean hasErrorHandler) {
+        this.hasErrorHandler = hasErrorHandler;
+    }
 }

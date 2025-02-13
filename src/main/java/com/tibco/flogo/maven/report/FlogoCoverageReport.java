@@ -99,9 +99,18 @@ public class FlogoCoverageReport extends AbstractMavenReport {
             }
 
             String appfileName = FilenameUtils.getBaseName(appFilePath);
+            FlogoCoverageReportGenerator report = new FlogoCoverageReportGenerator();
+
+            File testReport = new File(Paths.get(outputDirectory.getAbsolutePath(), "testresult", appfileName + ".testresult").toString());
+            if (!testReport.exists()) {
+                report.generateReportEmpty( getSink());
+                return;
+            }
 
             FlogoTestConfig.INSTANCE.setTestOutputDir(Paths.get(outputDirectory.getAbsolutePath(), "testresult").toFile().getAbsolutePath());
             FlogoTestConfig.INSTANCE.setTestOutputFile(appfileName);
+
+
 
             getLog().info("Generating report ..");
             String content = FileHelper.readFile(Paths.get(FlogoTestConfig.INSTANCE.getTestOutputDir(), FlogoTestConfig.INSTANCE.getTestOutputFile() + ".testresult").toFile().getAbsolutePath(), Charset.defaultCharset());
@@ -112,7 +121,6 @@ public class FlogoCoverageReport extends AbstractMavenReport {
             AppParser parser = new AppParser();
             parser.parse(appFilePath, root);
 
-            FlogoCoverageReportGenerator report = new FlogoCoverageReportGenerator();
             report.generateReport( parser, getSink());
 
         } catch (Exception e) {

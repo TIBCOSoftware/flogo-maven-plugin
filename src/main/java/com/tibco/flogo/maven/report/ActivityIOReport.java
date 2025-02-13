@@ -100,6 +100,17 @@ public class ActivityIOReport extends AbstractMavenReport {
             }
 
             String appfileName = FilenameUtils.getBaseName(appFilePath);
+            FlogoActivityIOReportGenerator report = new FlogoActivityIOReportGenerator();
+
+            File testReport = new File(Paths.get(outputDirectory.getAbsolutePath(), "testresult", appfileName + ".testresult").toString());
+            if (!testReport.exists()) {
+                report.generateReportEmptytestFile( getSink());
+                return;
+            }
+            if (!preserveIO) {
+                report.generateReportEmpty( getSink());
+                return;
+            }
 
             FlogoTestConfig.INSTANCE.setTestOutputDir(Paths.get(outputDirectory.getAbsolutePath(), "testresult").toFile().getAbsolutePath());
             FlogoTestConfig.INSTANCE.setTestOutputFile(appfileName);
@@ -113,11 +124,8 @@ public class ActivityIOReport extends AbstractMavenReport {
             AppParser parser = new AppParser();
             parser.parse(appFilePath, root);
 
-            FlogoActivityIOReportGenerator report = new FlogoActivityIOReportGenerator();
             if ( preserveIO) {
                 report.generateReport( parser, getSink());
-            } else {
-                report.generateReportEmpty(parser, getSink());
             }
 
 

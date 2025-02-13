@@ -77,6 +77,7 @@ public class AppParser {
         FlowIOCoverage flowIOCoverage = new FlowIOCoverage();
         testIOCoverage.getFlowIOCoverageMap().put(testCase.flowName, flowIOCoverage);
         addActivitiesExecuted( flowCoverage, testCase.activities, flowIOCoverage);
+
         addActivitiesErrorHandlerExecuted( flowCoverage, testCase.errorHandler.activities, flowIOCoverage);
         addExecutedLinks( flowCoverage, testCase.links);
         addExecutedErrorHandlerLinks( flowCoverage, testCase.errorHandler.links);
@@ -103,6 +104,7 @@ public class AppParser {
             } else {
                 flowCoverage = new FlowCoverage();
                 flowCoverage.setFlowName( resource.name);
+                flowCoverage.setHasErrorHandler((resource.errorHandler != null && resource.errorHandler.tasks.size() > 0));
                 coverage.getFlowMap().put(resource.name, flowCoverage);
             }
             addLinks(flowCoverage, resource.links);
@@ -301,8 +303,11 @@ public class AppParser {
         public boolean hasErrorHandler;
 
         public void generateFlowStats( FlowCoverage coverage) {
+
             flowName = coverage.getFlowName();
             executed = coverage.isFlowExecuted();
+
+            hasErrorHandler = coverage.isHasErrorHandler();
 
             totalMainActivities = coverage.getActivities().size();
             executedMainActivities = coverage.getActivitiesExec().size();

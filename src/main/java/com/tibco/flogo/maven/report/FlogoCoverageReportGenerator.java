@@ -155,6 +155,35 @@ public class FlogoCoverageReportGenerator {
         sink.tableCell_();
     }*/
 
+    public void generateReportEmpty(Sink sink) throws Exception {
+        sink.head();
+
+        sink.title();
+        sink.text("Flogo Activity IO Report");
+        sink.title_();
+
+        sink.head_();
+
+        sink.body();
+
+        sink.section1();
+        sink.sectionTitle1();
+        sink.text("Flogo Coverage Report");
+        sink.sectionTitle1_();
+        sink.section1_();
+
+        sink.blockquote();
+        sink.text( "No tests were executed in for the flogo app." );
+        sink.blockquote_();
+
+        sink.body_();
+
+        sink.flush();
+
+        sink.close();
+    }
+
+
     private void contructCoverageByFlowSection(Sink sink) throws Exception {
 
         sink.section1();
