@@ -45,6 +45,9 @@ public class FlogoPackageMojo extends AbstractMojo {
     @Parameter(property = "deploymentTarget", defaultValue = "")
     private String deployTarget;
 
+    @Parameter(property = "tibcoPlatformBuildTags", defaultValue = "")
+    private String tibcoPlatformBuildTags;
+
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
@@ -94,6 +97,7 @@ public class FlogoPackageMojo extends AbstractMojo {
             }
 
             FlogoBuildConfig.INSTANCE.setCrossPlatform(crossPlatform);
+            FlogoBuildConfig.INSTANCE.setTags( tibcoPlatformBuildTags);
             FlogoPackageRunner runner = new FlogoPackageRunner();
             runner.run();
 

@@ -16,6 +16,7 @@ public class FlogoBuildConfig {
     private String emsHome;
     private String mqHome;
     private boolean crossPlatform;
+    private String  tags;
 
     public String getOutputPathPlatform() {
         return outputPathPlatform;
@@ -114,6 +115,14 @@ public class FlogoBuildConfig {
         this.appPath = appPath;
     }
 
+    public String getTags() {
+        return tags;
+    }
+
+    public void setTags(String tags) {
+        this.tags = tags;
+    }
+
     public void reset() {
         INSTANCE = new FlogoBuildConfig();
     }
@@ -125,6 +134,8 @@ public class FlogoBuildConfig {
         this.flogoConnectorsPath = flogoConnectorsPath;
         initConfig();
     }
+
+
 
     private void initConfig() throws Exception {
 

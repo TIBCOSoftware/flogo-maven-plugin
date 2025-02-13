@@ -57,6 +57,8 @@ public class FlogoPackageRunner {
         launchConfig.add(Paths.get(FlogoBuildConfig.INSTANCE.getOutputPathPlatform(),"flogo-engine").toFile().getAbsolutePath());
         launchConfig.add("-o");
         launchConfig.add(Paths.get(FlogoBuildConfig.INSTANCE.getOutputPath(), FlogoBuildConfig.INSTANCE.getArtifactId() + ".zip").toFile().getAbsolutePath());
+        launchConfig.add("-t");
+        launchConfig.add(FlogoBuildConfig.INSTANCE.getTags());
 
         return launchConfig;
     }
