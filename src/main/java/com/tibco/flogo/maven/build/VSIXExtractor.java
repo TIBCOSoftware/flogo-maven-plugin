@@ -65,7 +65,13 @@ public class VSIXExtractor {
             FileUtils.deleteDirectory(tmpdir.toFile());
 
 
-            String flogoBinaryPath = Paths.get(directory.getAbsolutePath() + File.separator + vsixVersion + File.separator + "bin" + File.separator + "flogo-vscode-cli").toString();
+            String flogoBinaryPath;
+            if (SystemUtils.IS_OS_WINDOWS) {
+                flogoBinaryPath = Paths.get(directory.getAbsolutePath() + File.separator + vsixVersion + File.separator + "bin" + File.separator + "flogo-vscode-cli.exe").toString();
+            } else {
+                flogoBinaryPath = Paths.get(directory.getAbsolutePath() + File.separator + vsixVersion + File.separator + "bin" + File.separator + "flogo-vscode-cli").toString();
+            }
+
             File binary = new File(flogoBinaryPath);
             binary.setExecutable(true);
             String flogoRuntimePath = Paths.get(directory.getAbsolutePath() + File.separator + vsixVersion + File.separator + "flogo-runtime").toString();

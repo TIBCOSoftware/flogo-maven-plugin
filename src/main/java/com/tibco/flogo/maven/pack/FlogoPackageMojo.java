@@ -53,7 +53,7 @@ public class FlogoPackageMojo extends AbstractMojo {
             FlogoBuildConfig.INSTANCE.reset();
             getLog().info("Flogo packaging started");
 
-            if (deployTarget.equals("") || (!deployTarget.equals("platform") && !deployTarget.equals("docker"))) {
+            if (deployTarget.equals("") || (!deployTarget.equals("tibco-platform") )) {
                 throw new MojoFailureException("The deploy target is not supported. Only supported deploy targets are platform and docker.");
             }
 

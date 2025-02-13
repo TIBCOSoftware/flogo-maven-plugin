@@ -34,6 +34,9 @@ public class ActivityIOReport extends AbstractMavenReport {
     private String testSuiteName;
 
 
+    @Parameter(property = "saveActivityInputOutput", defaultValue = "false")
+    private boolean preserveIO;
+
     @Parameter(defaultValue = "${project.build.directory}", property = "outputDir", required = true)
     private File outputDirectory;
 
@@ -111,7 +114,12 @@ public class ActivityIOReport extends AbstractMavenReport {
             parser.parse(appFilePath, root);
 
             FlogoActivityIOReportGenerator report = new FlogoActivityIOReportGenerator();
-            report.generateReport( parser, getSink());
+            if ( preserveIO) {
+                report.generateReport( parser, getSink());
+            } else {
+                report.generateReportEmpty(parser, getSink());
+            }
+
 
         } catch (Exception e) {
             throw new MavenReportException(e.getMessage());

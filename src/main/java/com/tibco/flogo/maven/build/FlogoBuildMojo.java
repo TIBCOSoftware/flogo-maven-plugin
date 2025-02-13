@@ -12,7 +12,6 @@ import org.apache.maven.plugins.annotations.Parameter;
 
 import java.io.File;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 
@@ -35,7 +34,7 @@ public class FlogoBuildMojo extends AbstractMojo {
     private String appFilePath;
 
     @Parameter(property = "customFlogoExtensionsDirPath", defaultValue = "")
-    private String customExtensionPath;
+    private String customFlogoExtensionsDirPath;
 
     @Parameter(property = "emsHome", defaultValue = "")
     private String emsHome;
@@ -62,7 +61,7 @@ public class FlogoBuildMojo extends AbstractMojo {
 
 
             if (session.getRequest().getGoals().contains("package")) {
-                if (!deployTarget.equals("platform")) {
+                if ( !deployTarget.isEmpty() && !deployTarget.equals("tibco-platform")) {
                     throw new Exception("Invalid deploy target: " + deployTarget);
                 }
 
@@ -116,7 +115,7 @@ public class FlogoBuildMojo extends AbstractMojo {
 
             VSIXExtractor.extract(flogoVSCodeExtensionPath);
 
-            FlogoBuildConfig.INSTANCE.setCustomExtensionsPath(customExtensionPath);
+            FlogoBuildConfig.INSTANCE.setCustomExtensionsPath(customFlogoExtensionsDirPath);
             FlogoBuildConfig.INSTANCE.setEmsHome(emsHome);
             FlogoBuildConfig.INSTANCE.setMqHome(mqHome);
             FlogoBuildConfig.INSTANCE.setCrossPlatform(crossPlatform);

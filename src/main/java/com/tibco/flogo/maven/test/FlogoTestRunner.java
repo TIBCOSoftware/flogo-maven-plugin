@@ -65,6 +65,8 @@ public class FlogoTestRunner {
         launchConfig.add(FlogoTestConfig.INSTANCE.getSuites());
         if (FlogoTestConfig.INSTANCE.getPreserveIO()) {
             launchConfig.add("--test-preserve-io");
+        } else {
+            launchConfig.add("--collect-coverage");
         }
         return launchConfig;
     }

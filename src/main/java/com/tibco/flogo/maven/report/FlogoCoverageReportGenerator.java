@@ -162,22 +162,22 @@ public class FlogoCoverageReportGenerator {
         sink.text("Coverage BreakDown By Flow");
         sink.sectionTitle1_();
         sinkLineBreak(sink);
-
+        sink.sectionTitle2();
+        sink.text("Main Flow Activity and Transition Execution Percentage");
+        sink.sectionTitle2_();
         sink.table();
         sink.tableRows(new int[]{LEFT, LEFT, LEFT, LEFT, LEFT, LEFT, LEFT, LEFT, LEFT, LEFT}, true);
         sink.tableRow();
         sinkHeader(sink, "Flow Name");
         sinkHeader(sink, "Flow Executed");
-        sinkHeader(sink, "Main Flow Activities Executed %");
-        sinkHeader(sink, "Non  Executed Activities");
-        sinkHeader(sink, "Error Handler Activities Executed %");
-        sinkHeader(sink, "Non  Executed Error Handler Activities");
-        sinkHeader(sink, "Main Flow Transition Executed %");
+        sinkHeader(sink, "Activities Execution %");
+        sinkHeader(sink, "Transition Execution %");
+        sinkHeader(sink, "Non Executed Activities");
         sinkHeader(sink, "Non Executed Transitions");
-        sinkHeader(sink, "Error Handler Transition Executed %");
-        sinkHeader(sink, "Non Executed Error Handlers Transition");
 
         sink.tableRow_();
+
+        boolean needErrorSection = false;
 
         for ( String flow : report.getAppCoverageStatistics().getFlows()) {
             AppParser.FlowStats stats = report.getAppCoverageStatistics().getFlowStatistics( flow);
@@ -185,16 +185,49 @@ public class FlogoCoverageReportGenerator {
             sinkCell( sink, stats.flowName);
             sinkCell( sink, String.valueOf(stats.executed));
             sinkCell( sink, stats.getMainFlowActivityPercentage());
-            sinkCell( sink, stats.nonExecutedMainActivitiesList);
-            sinkCell( sink, stats.getErrorFlowActivityPercentage());
-            sinkCell( sink , stats.nonExecutedErrorActivitiesList);
             sinkCell( sink , stats.getMainFlowLinkPercentage());
+            sinkCell( sink, stats.nonExecutedMainActivitiesList);
             sinkCell( sink , stats.nonExecutedMainLinksList);
-            sinkCell( sink, stats.getErrorFlowLinkPercentage());
-            sinkCell( sink, stats.nonExecutedErrorLinksList);
             sink.tableRow_();
+            if (stats.hasErrorHandler()) {
+                needErrorSection = true;
+            }
         }
         sink.table_();
+
+        if (needErrorSection ){
+            sink.sectionTitle2();
+            sink.text("Error Handler Activity and Transition Execution Percentage");
+            sink.sectionTitle2_();
+            sink.table();
+            sink.tableRows(new int[]{LEFT, LEFT, LEFT, LEFT, LEFT, LEFT, LEFT, LEFT, LEFT, LEFT}, true);
+            sink.tableRow();
+            sinkHeader(sink, "Flow Name");
+            sinkHeader(sink, "Flow Executed");
+            sinkHeader(sink, "Activities Execution %");
+            sinkHeader(sink, "Transition Execution %");
+            sinkHeader(sink, "Non Executed Activities");
+            sinkHeader(sink, "Non Executed Transitions");
+
+            sink.tableRow_();
+
+            for ( String flow : report.getAppCoverageStatistics().getFlows()) {
+                AppParser.FlowStats stats = report.getAppCoverageStatistics().getFlowStatistics( flow);
+                if (!stats.hasErrorHandler()) {
+                    continue;
+                }
+                sink.tableRow();
+                sinkCell( sink, stats.flowName);
+                sinkCell( sink, String.valueOf(stats.executed));
+                sinkCell( sink, stats.getErrorFlowActivityPercentage());
+                sinkCell( sink , stats.getErrorFlowLinkPercentage());
+                sinkCell( sink, stats.nonExecutedErrorActivitiesList);
+                sinkCell( sink , stats.nonExecutedErrorLinksList);
+                sink.tableRow_();
+            }
+            sink.table_();
+        }
+
         sink.section1_();
 
     }
@@ -215,22 +248,18 @@ public class FlogoCoverageReportGenerator {
 
         sink.tableRow();
 
-        sinkHeader(sink, "Flow %");
+        sinkHeader(sink, "Flow Execution %");
+        sinkHeader(sink, "Activity Execution %");
+        sinkHeader(sink, "Transition Execution %");
         sinkHeader(sink, "Non Executed Flows");
-        sinkHeader(sink, "Activity %");
-        sinkHeader(sink, "Transition %");
-
 
         sink.tableRow_();
-
         sink.tableRow();
 
         sinkCell(sink, report.getAppCoverageStatistics().getAppFlowStats());
-
-        sinkCell( sink, report.getAppCoverageStatistics().getNonExecutedFlows());
         sinkCell(sink, report.getAppCoverageStatistics().getAppFlowActivityStats());
-
         sinkCell(sink, report.getAppCoverageStatistics().getAppFlowLinkStats());
+        sinkCell( sink, report.getAppCoverageStatistics().getNonExecutedFlows());
 
         sink.tableRow_();
 

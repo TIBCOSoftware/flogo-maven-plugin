@@ -51,6 +51,13 @@ public class FlogoTestMojo extends AbstractMojo {
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
+
+        if (skipTests) {
+                getLog().info( "-------------------------------------------------------" );
+                getLog().info( "skipTests flag is set to true. Skipping Test phase.");
+                getLog().info( "-------------------------------------------------------" );
+                return;
+        }
         FlogoTestConfig.INSTANCE.reset();
         getLog().info("FlogoTestMojo executed");
         try {
@@ -86,7 +93,10 @@ public class FlogoTestMojo extends AbstractMojo {
                 if (failIfNoTests) {
                     throw new Exception( "No flogo tests found with name => " + (appfileName+".flogotest") + " in the project directory");
                 } else {
-                    getLog().info( "No flogo test found for the app. Tests will be skipped.");
+                    getLog().info( "-------------------------------------------------------" );
+                    getLog().info( "No flogo test file found for the app. Tests will be skipped.");
+                    getLog().info( "-------------------------------------------------------" );
+
                     return;
                 }
             }

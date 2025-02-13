@@ -37,7 +37,7 @@ public class FlogoPackageRunner {
         String result = builder.toString();
         int exitCode = process.waitFor();
         System.out.println(result);
-        if (!result.contains("Build Zip "+ Paths.get(FlogoBuildConfig.INSTANCE.getOutputPath(), FlogoBuildConfig.INSTANCE.getArtifactId() + ".zip").toFile().getAbsolutePath() + " built successfully")) {
+        if (!result.contains("Build Zip exported successfully")) {
             throw new Exception("Failed to build binary");
         }
         FileUtils.deleteDirectory( FlogoBuildConfig.INSTANCE.getOutputPathPlatform());

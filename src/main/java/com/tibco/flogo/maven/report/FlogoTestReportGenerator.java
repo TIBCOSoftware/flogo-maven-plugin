@@ -9,6 +9,8 @@ import org.apache.maven.doxia.sink.impl.SinkEventAttributeSet;
 import org.apache.maven.doxia.util.DoxiaUtils;
 
 import java.text.DecimalFormat;
+import java.util.Collection;
+import java.util.Collections;
 
 import static org.apache.maven.doxia.markup.HtmlMarkup.A;
 import static org.apache.maven.doxia.sink.Sink.JUSTIFY_LEFT;
@@ -170,8 +172,8 @@ public class FlogoTestReportGenerator {
         sink.table();
         sink.tableRows(new int[]{LEFT, LEFT, LEFT, LEFT, LEFT, LEFT}, true);
         sink.tableRow();
-        sinkHeader(sink, "Test Case Name");
         sinkHeader(sink, "Flow Name");
+        sinkHeader(sink, "Test Case Name");
         sinkHeader(sink, "Activity Name");
         sinkHeader(sink, "Assertion Name");
         sinkHeader(sink, "Assertion Expression");
@@ -195,8 +197,8 @@ public class FlogoTestReportGenerator {
                     }
 
                     sink.tableRow( ) ;
-                    sinkCell( sink, testCase.testName);
                     sinkCell( sink, testCase.flowName);
+                    sinkCell( sink, testCase.testName);
                     sinkCell( sink, activity.name);
                     sinkCell( sink, assertionResult.name) ;
                     sinkCellMonospaced( sink, assertionResult.expression);
@@ -221,9 +223,11 @@ public class FlogoTestReportGenerator {
         sink.section1();
 
 
+        Collections.sort( this.report.report.suites);
         for (int i = 0; i < this.report.report.suites.size(); i++) {
 
             Suite suite = this.report.report.suites.get(i);
+            boolean containsFailed = false;
             sink.section1();
             sink.sectionTitle2();
             sink.text(suite.suiteName);
@@ -232,14 +236,15 @@ public class FlogoTestReportGenerator {
             sink.tableRows(new int[]{LEFT, LEFT, LEFT, LEFT, LEFT, LEFT, LEFT, LEFT}, true);
             sink.tableRow();
             sinkHeader(sink, "");
-            sinkHeader(sink, "Test Case Name");
             sinkHeader(sink, "Flow Name");
-            sinkHeader(sink, "Test Case Status");
+            sinkHeader(sink, "Test Case Name");
             sinkHeader(sink, "Total Assertions");
             sinkHeader(sink, "Success Assertions");
             sinkHeader(sink, "Failure Assertions");
             sinkHeader(sink, "Skipped Assertions");
+            sinkHeader(sink, "Test Case Status");
             sink.tableRow_();
+            Collections.sort(suite.testCases);
             for (int j = 0; j < suite.testCases.size(); j++) {
                 TestCase testCase = suite.testCases.get(j);
                 sink.tableRow();
@@ -253,13 +258,8 @@ public class FlogoTestReportGenerator {
                 sink.link_();
 
                 sink.tableCell_();
-                sinkCell(sink, testCase.testName);
                 sinkCell(sink, testCase.flowName);
-                if ( testCase.testResult.failedAssertions > 0 || testCase.testResult.skippedAssertions > 0) {
-                    sinkCellBold (sink, "failed");
-                } else {
-                    sinkCell (sink, "passed");
-                }
+                sinkCell(sink, testCase.testName);
                 sinkCell(sink, String.valueOf(testCase.testResult.totalAssertions));
                 sinkCell(sink, String.valueOf(testCase.testResult.successAssertions));
                 if (testCase.testResult.failedAssertions > 0) {
@@ -273,10 +273,19 @@ public class FlogoTestReportGenerator {
                 } else {
                     sinkCell(sink, String.valueOf(testCase.testResult.skippedAssertions));
                 }
+
+                if ( testCase.testResult.failedAssertions > 0 || testCase.testResult.skippedAssertions > 0) {
+                    sinkCellBold (sink, "failed");
+                    containsFailed = true;
+                } else {
+                    sinkCell (sink, "passed");
+                }
                 sink.tableRow_();
             }
             sink.table_();
-            constructAssertionDetailsSection( sink, suite );
+            if (containsFailed) {
+                constructAssertionDetailsSection( sink, suite );
+            }
 
 
         }
@@ -299,8 +308,11 @@ public class FlogoTestReportGenerator {
         sink.tableRows(new int[]{LEFT, LEFT, LEFT, LEFT, LEFT, LEFT}, true);
 
         sinkHeader(sink, "Test Suite Name");
+        sinkHeader(sink, "Success Rate");
+
 
         sinkHeader(sink, "Tests");
+
 
         sinkHeader(sink, "Success");
 
@@ -308,21 +320,21 @@ public class FlogoTestReportGenerator {
 
         sinkHeader(sink, "Errors");
 
-        sinkHeader(sink, "Success Rate");
 
         sink.tableRow_();
 
+        Collections.sort( this.report.report.suites);
 
         for (int i = 0; i < this.report.report.suites.size(); i++) {
 
             Suite suite = this.report.report.suites.get(i);
             sink.tableRow();
             sinkCell(sink, suite.suiteName);
+            sinkCell(sink, Utils.getPercentage(suite.suiteResult.totalTests, suite.suiteResult.failedTests));
             sinkCell(sink, String.valueOf(suite.suiteResult.totalTests));
             sinkCell(sink, String.valueOf(suite.suiteResult.totalTests - suite.suiteResult.failedTests));
             sinkCell(sink, String.valueOf(suite.suiteResult.failedTests));
             sinkCell(sink, String.valueOf(suite.suiteResult.errorFailed));
-            sinkCell(sink, Utils.getPercentage(suite.suiteResult.totalTests, suite.suiteResult.failedTests));
             sink.tableRow_();
         }
 

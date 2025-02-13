@@ -226,6 +226,7 @@ public class AppParser {
 
         public List<String> getFlows() {
             List<String> flows = new ArrayList<>( this.appCoverage.getFlowMap().keySet() );
+            Collections.sort(flows, String.CASE_INSENSITIVE_ORDER);
             return flows;
         }
 
@@ -297,6 +298,7 @@ public class AppParser {
         public String totalErrorLinksList;
         public String nonExecutedErrorLinksList;
         public boolean executed;
+        public boolean hasErrorHandler;
 
         public void generateFlowStats( FlowCoverage coverage) {
             flowName = coverage.getFlowName();
@@ -317,31 +319,56 @@ public class AppParser {
             Set<String> nonExecSet = new TreeSet<>( coverage.getActivities());
             totalMainActivitiesList = String.join( ",", nonExecSet);
             nonExecSet.removeAll( coverage.getActivitiesExec());
-            nonExecutedMainActivitiesList = String.join( ",", nonExecSet);
+            if (nonExecSet.size() > 0) {
+                nonExecutedMainActivitiesList = String.join( ",", nonExecSet);
+            } else  {
+                nonExecutedMainActivitiesList = "N/A";
+            }
+
 
             Set<String> nonExecLinkSet = new TreeSet<>( coverage.getTransitions());
             totalMainLinksList = String.join( "," , nonExecLinkSet);
 
             nonExecLinkSet.removeAll( coverage.getTransitionExec());
-            nonExecutedMainLinksList = String.join( ",", nonExecLinkSet);
+            if (nonExecLinkSet.size() > 0) {
+                nonExecutedMainLinksList = String.join( ",", nonExecLinkSet);
+            } else  {
+                nonExecutedMainLinksList = "N/A";
+            }
 
             Set<String> nonExecErrorSet = new TreeSet<>( coverage.getErrorHandlerActivities());
             totalErrorActivitiesList = String.join( "," , nonExecErrorSet);
             nonExecErrorSet.removeAll( coverage.getErrorHandlerActivitiesExec());
-            nonExecutedErrorActivitiesList = String.join( ",", nonExecErrorSet);
+            if (nonExecErrorSet.size() > 0) {
+                nonExecutedErrorActivitiesList = String.join( ",", nonExecErrorSet);
+            } else {
+                nonExecutedErrorActivitiesList = "N/A";
+            }
 
             Set<String> nonExecLinkErrorSet = new TreeSet<>( coverage.getErrorHandlerTransitions());
             totalErrorLinksList = String.join( "," , nonExecLinkErrorSet);
             nonExecLinkErrorSet.removeAll( coverage.getErrorHandlerTransitionExec());
-            nonExecutedErrorLinksList = String.join( ",", nonExecLinkErrorSet);
+            if (nonExecLinkErrorSet.size() > 0) {
+                nonExecutedErrorLinksList = String.join( ",", nonExecLinkErrorSet);
+            } else  {
+                nonExecutedErrorLinksList = "N/A";
+            }
 
 
         }
 
+
+
         public String getMainFlowActivityPercentage() {
+            if ( !executed ) {
+                return "N/A";
+            }
             return Utils.getPercentage( totalMainActivities, totalMainActivities - executedMainActivities) ;
         }
         public String getMainFlowLinkPercentage() {
+            if ( !executed ) {
+                return "N/A";
+            }
             return Utils.getPercentage( totalMainLinks, totalMainLinks - executedMainLinks) ;
         }
         public String getErrorFlowActivityPercentage() {
@@ -351,7 +378,9 @@ public class AppParser {
             return Utils.getPercentage( totalErrorLinks, totalErrorLinks - executedErrorLinks) ;
         }
 
-
+        public boolean hasErrorHandler() {
+            return hasErrorHandler;
+        }
 
     }
 }

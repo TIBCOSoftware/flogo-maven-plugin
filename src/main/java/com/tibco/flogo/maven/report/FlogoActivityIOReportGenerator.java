@@ -119,6 +119,34 @@ public class FlogoActivityIOReportGenerator {
                 + "//";
     }
 
+    public void generateReportEmpty(AppParser parser, Sink sink) throws Exception {
+        sink.head();
+
+        sink.title();
+        sink.text("Flogo Activity IO Report");
+        sink.title_();
+
+        sink.head_();
+
+        sink.body();
+
+        sink.section1();
+        sink.sectionTitle1();
+        sink.text("Flogo Coverage Report");
+        sink.sectionTitle1_();
+        sink.section1_();
+
+        sink.blockquote();
+        sink.text( "The saveActivityInputOutput flag is set to false in the pom.xml. To see the Activity input and output report set te flag to true" );
+        sink.blockquote_();
+
+        sink.body_();
+
+        sink.flush();
+
+        sink.close();
+    }
+
     public void generateReport(AppParser parser, Sink sink) throws Exception {
         this.report = parser;
         sink.head();
