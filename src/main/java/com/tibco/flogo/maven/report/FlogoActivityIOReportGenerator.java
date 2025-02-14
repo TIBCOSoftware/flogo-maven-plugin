@@ -132,7 +132,7 @@ public class FlogoActivityIOReportGenerator {
 
         sink.section1();
         sink.sectionTitle1();
-        sink.text("Flogo Coverage Report");
+        sink.text("Flogo Activity Input Output Report");
         sink.sectionTitle1_();
         sink.section1_();
 
@@ -160,7 +160,7 @@ public class FlogoActivityIOReportGenerator {
 
         sink.section1();
         sink.sectionTitle1();
-        sink.text("Flogo Coverage Report");
+        sink.text("Flogo Activity Input Output Report");
         sink.sectionTitle1_();
         sink.section1_();
 
@@ -195,7 +195,7 @@ public class FlogoActivityIOReportGenerator {
 
         sink.section1();
         sink.sectionTitle1();
-        sink.text("Flogo Coverage Report");
+        sink.text("Flogo Activity Input Output Report");
         sink.sectionTitle1_();
         sink.section1_();
 
