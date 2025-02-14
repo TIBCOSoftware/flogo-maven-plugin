@@ -49,7 +49,12 @@ public class VSIXExtractor {
             String vsixVersion = findVSIXVersion(Paths.get(directory.getAbsolutePath() + File.separator + "extension.vsixmanifest").toFile());
             Files.deleteIfExists(Paths.get(directory.getAbsolutePath() + File.separator + "extension.vsixmanifest"));
             if (Files.isDirectory(Paths.get(directory.getAbsolutePath() + File.separator + vsixVersion))) {
-                String flogoBinaryPath = Paths.get(directory.getAbsolutePath() + File.separator + vsixVersion + File.separator + "bin" + File.separator + "flogo-vscode-cli").toString();
+                String flogoBinaryPath;
+                if (SystemUtils.IS_OS_WINDOWS) {
+                    flogoBinaryPath = Paths.get(directory.getAbsolutePath() + File.separator + vsixVersion + File.separator + "bin" + File.separator + "flogo-vscode-cli.exe").toString();
+                } else {
+                    flogoBinaryPath = Paths.get(directory.getAbsolutePath() + File.separator + vsixVersion + File.separator + "bin" + File.separator + "flogo-vscode-cli").toString();
+                }
                 String flogoRuntimePath = Paths.get(directory.getAbsolutePath() + File.separator + vsixVersion + File.separator + "flogo-runtime").toString();
                 String flogoConnPath = Paths.get(directory.getAbsolutePath() + File.separator + vsixVersion + File.separator + "flogo-contributions").toString();
                 FlogoBuildConfig.INSTANCE.init(flogoBinaryPath, flogoRuntimePath, flogoConnPath);
