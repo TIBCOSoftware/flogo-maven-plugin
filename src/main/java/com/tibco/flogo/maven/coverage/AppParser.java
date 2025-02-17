@@ -149,7 +149,8 @@ public class AppParser {
             coverage.getActivitiesExec().add( activity.name);
             String input = new ObjectMapper().writeValueAsString( activity.input);
             String output = new ObjectMapper().writeValueAsString( activity.output);
-            flowIOCoverage.getActivityList().add( new ActivityIO( activity.name, input, output, "" ));
+            String error = new ObjectMapper().writeValueAsString( activity.error);
+            flowIOCoverage.getActivityList().add( new ActivityIO( activity.name, input, output, error ));
         }
     }
 
@@ -162,7 +163,8 @@ public class AppParser {
             coverage.getErrorHandlerActivitiesExec().add( activity.name);
             String input = new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString( activity.input);
             String output = new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString( activity.output);
-            flowIOCoverage.getActivityErrorList().add( new ActivityIO( activity.name, input, output, "" ));
+            String error = new ObjectMapper().writeValueAsString( activity.error);
+            flowIOCoverage.getActivityErrorList().add( new ActivityIO( activity.name, input, output, error ));
         }
     }
 

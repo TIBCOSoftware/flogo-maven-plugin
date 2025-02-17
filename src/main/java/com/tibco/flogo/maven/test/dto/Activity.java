@@ -11,4 +11,5 @@ public class Activity {
     public Map<String, Object> input;
     public Map<String, Object> output;
     public Error error;
+    public String message;
 }
