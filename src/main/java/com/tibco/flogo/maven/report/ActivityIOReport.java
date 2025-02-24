@@ -69,12 +69,6 @@ public class ActivityIOReport extends AbstractMavenReport {
 
 
     @Override
-    public void execute() throws MojoExecutionException {
-
-        super.execute();
-    }
-
-    @Override
     protected void executeReport(Locale locale) throws MavenReportException {
 
         FlogoTestConfig.INSTANCE.reset();

@@ -15,6 +15,10 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
 
+/**
+ * The Flogo Build Mojo. This class with build the flogo binary from the Flogo App.
+ * The default lifycycle mapping for this Mojo is the compile phase.
+ */
 @Mojo(name = "flogobuild", defaultPhase = LifecyclePhase.COMPILE)
 public class FlogoBuildMojo extends AbstractMojo {
 
