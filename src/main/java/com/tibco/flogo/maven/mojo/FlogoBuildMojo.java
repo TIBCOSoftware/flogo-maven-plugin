@@ -1,4 +1,4 @@
-package com.tibco.flogo.maven.pack;
+package com.tibco.flogo.maven.mojo;
 
 import com.tibco.flogo.maven.build.FlogoCLIRunner;
 import com.tibco.flogo.maven.build.VSIXExtractor;
@@ -15,9 +15,14 @@ import org.apache.maven.plugins.annotations.Parameter;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Arrays;
 
-@Mojo(name = "flogopackage", defaultPhase = LifecyclePhase.PACKAGE)
-public class FlogoPackageMojo extends AbstractMojo {
+/**
+ * The Flogo Build Mojo. This class with build the flogo binary from the Flogo App.
+ * The default lifycycle mapping for this Mojo is the compile phase.
+ */
+@Mojo(name = "flogobuild", defaultPhase = LifecyclePhase.COMPILE)
+public class FlogoBuildMojo extends AbstractMojo {
 
     @Parameter(defaultValue = "${project.build.directory}", property = "outputDir", required = true)
     private File outputDirectory;
@@ -34,6 +39,14 @@ public class FlogoPackageMojo extends AbstractMojo {
     @Parameter(property = "appFilePath", defaultValue = "")
     private String appFilePath;
 
+    @Parameter(property = "customFlogoExtensionsDirPath", defaultValue = "")
+    private String customFlogoExtensionsDirPath;
+
+    @Parameter(property = "emsHome", defaultValue = "")
+    private String emsHome;
+
+    @Parameter(property = "mqHome", defaultValue = "")
+    private String mqHome;
 
     @Parameter(property = "project.artifactId")
     private String artifactId;
@@ -41,24 +54,41 @@ public class FlogoPackageMojo extends AbstractMojo {
     @Parameter(defaultValue = "${session}", readonly = true)
     private MavenSession session;
 
+    private boolean crossPlatform;
 
     @Parameter(property = "deploymentTarget", defaultValue = "")
     private String deployTarget;
 
-    @Parameter(property = "tibcoPlatformBuildTags", defaultValue = "")
-    private String tibcoPlatformBuildTags;
-
-
-    @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
-
         try {
-            FlogoBuildConfig.INSTANCE.reset();
-            getLog().info("Flogo packaging started");
 
-            if (deployTarget.equals("") || (!deployTarget.equals("tibco-platform") )) {
-                throw new MojoFailureException("The deploy target is not supported. Only supported deploy targets are platform and docker.");
+            FlogoBuildConfig.INSTANCE.reset();
+            getLog().info("Flogo application binary build started");
+
+
+            if (session.getRequest().getGoals().contains("package")) {
+                if ( !deployTarget.isEmpty() && !deployTarget.equals("tibco-platform")) {
+                    throw new Exception("Invalid deploy target: " + deployTarget);
+                }
+
+                if (!SystemUtils.IS_OS_LINUX) {
+                    crossPlatform = true;
+                } else {
+                    getLog().warn("The build will generate two binaries. One with local operating system for running the unit tests and one linux/amd64 for creating platform build. \nNote that the tests will not be run against the linux/amd64 binary ");
+                }
+
+
             }
+
+
+            if (!outputDirectory.exists()) {
+                Files.createDirectory(outputDirectory.toPath());
+            }
+
+            if (!Paths.get(outputDirectory.getAbsolutePath(), "platform").toFile().exists()) {
+                Files.createDirectory(Paths.get(outputDirectory.getAbsolutePath(), "platform").toFile().toPath());
+            }
+
 
             FlogoBuildConfig.INSTANCE.setOutputPath(outputDirectory.getPath());
             FlogoBuildConfig.INSTANCE.setOutputPathPlatform(Paths.get(outputDirectory.getPath(), "platform").toFile().getAbsolutePath());
@@ -91,19 +121,24 @@ public class FlogoPackageMojo extends AbstractMojo {
 
             VSIXExtractor.extract(flogoVSCodeExtensionPath);
 
-            boolean crossPlatform = false;
-            if (!SystemUtils.IS_OS_LINUX) {
-                crossPlatform = true;
-            }
-
+            FlogoBuildConfig.INSTANCE.setCustomExtensionsPath(customFlogoExtensionsDirPath);
+            FlogoBuildConfig.INSTANCE.setEmsHome(emsHome);
+            FlogoBuildConfig.INSTANCE.setMqHome(mqHome);
             FlogoBuildConfig.INSTANCE.setCrossPlatform(crossPlatform);
-            FlogoBuildConfig.INSTANCE.setTags( tibcoPlatformBuildTags);
-            FlogoPackageRunner runner = new FlogoPackageRunner();
+            FlogoCLIRunner runner = new FlogoCLIRunner();
             runner.run();
+
 
         } catch (Exception e) {
             getLog().error(e);
             throw new MojoExecutionException("Failed to build Flogo Application ", e);
         }
+
+
+    }
+
+    boolean isValid(Class enumClass, String value) {
+        return Arrays.stream(enumClass.getEnumConstants()).anyMatch((e) -> value.equals(
+                e.toString()));
     }
 }

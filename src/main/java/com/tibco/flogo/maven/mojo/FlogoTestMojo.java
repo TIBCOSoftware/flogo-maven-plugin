@@ -1,6 +1,7 @@
-package com.tibco.flogo.maven.test;
+package com.tibco.flogo.maven.mojo;
 
-import com.tibco.flogo.maven.build.helpers.FlogoBuildConfig;
+import com.tibco.flogo.maven.test.FlogoTestConfig;
+import com.tibco.flogo.maven.test.FlogoTestRunner;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -24,9 +25,6 @@ public class FlogoTestMojo extends AbstractMojo {
 
     @Parameter(property = "project.artifactId")
     private String artifactId;
-
-    @Parameter(property = "buildSource", defaultValue = "false")
-    private String buildSource;
 
     @Parameter(property = "flogoVSCodeExtensionPath", defaultValue = "")
     private String flogoVSCodeExtensionPath;

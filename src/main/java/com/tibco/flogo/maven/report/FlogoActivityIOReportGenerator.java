@@ -223,6 +223,7 @@ public class FlogoActivityIOReportGenerator {
 
         for (Map.Entry<String, TestSuiteIOCoverage> entry : report.getCoverage().getTestIOMap().entrySet()) {
 
+
             TestSuiteIOCoverage coverage = entry.getValue();
             sink.section2();
             sink.sectionTitle2();

@@ -4,6 +4,9 @@
     <list size="1">
       <item index="0" class="java.lang.String" itemvalue="org.apache.maven.plugins.annotations.Mojo" />
     </list>
+    <writeAnnotations>
+      <writeAnnotation name="org.apache.maven.plugins.annotations.Parameter" />
+    </writeAnnotations>
   </component>
   <component name="ExternalStorageConfigurationManager" enabled="true" />
   <component name="MavenProjectsManager">

@@ -1,6 +1,5 @@
 package com.tibco.flogo.maven.report;
 
-import com.tibco.flogo.maven.coverage.AppParser;
 import com.tibco.flogo.maven.test.dto.*;
 import com.tibco.flogo.maven.utils.Utils;
 import org.apache.maven.doxia.markup.HtmlMarkup;
@@ -9,8 +8,6 @@ import org.apache.maven.doxia.sink.SinkEventAttributes;
 import org.apache.maven.doxia.sink.impl.SinkEventAttributeSet;
 import org.apache.maven.doxia.util.DoxiaUtils;
 
-import java.text.DecimalFormat;
-import java.util.Collection;
 import java.util.Collections;
 
 import static org.apache.maven.doxia.markup.HtmlMarkup.A;
@@ -131,7 +128,7 @@ public class FlogoTestReportGenerator {
 
         sink.section1();
         sink.sectionTitle1();
-        sink.text("Flogo Coverage Report");
+        sink.text("Flogo Test Report");
         sink.sectionTitle1_();
         sink.section1_();
 
