@@ -8,7 +8,7 @@ It is provided as a sample plug-in to support use-cases of integrating TIBCO Flo
 
 1. Maven should be installed on the Machine. M2_HOME should be set. The Maven Executable should be available in the Path.
 This can be confirmed by running the command mvn -version from Terminal/Command Prompt.
-2. TIBCO Flogo® Extension for Visual Studio Code should be installed or A VSIX package (.vsix) file for the TIBCO Flogo® Extension should be available.
+2. TIBCO Flogo® Extension for Visual Studio Code should be installed or a VSIX package (.vsix) file specific to your operating system should be downloaded.
 
 ## Installation
 
@@ -22,7 +22,7 @@ This can be confirmed by running the command mvn -version from Terminal/Command 
 ````
 mvn install
 ````
-4. This will install the flogo maven plugin to the local repository
+4. This will install the Flogo maven plugin to the local repository
 
 
 
