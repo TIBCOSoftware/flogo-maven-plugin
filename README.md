@@ -24,6 +24,11 @@ mvn install
 ````
 4. This will install the Flogo maven plugin to the local repository
 
+## License
+This project is Licensed under The 3-Clause BSD License with copyright (c) 2025, TIBCO Software Inc.
+
+## Notices
+The notices for subcomponents contained in the Notice section.
 
 
 ## Contributing to the Plug-in
