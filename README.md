@@ -24,6 +24,9 @@ mvn install
 ````
 4. This will install the Flogo maven plugin to the local repository
 
+## Usage
+Refer https://github.com/TIBCOSoftware/flogo-maven-plugin/wiki for more details
+
 ## License
 Copyright 2025 Cloud Software Group, Inc.
 
