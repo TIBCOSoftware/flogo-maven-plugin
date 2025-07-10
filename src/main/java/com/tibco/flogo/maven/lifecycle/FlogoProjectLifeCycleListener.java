@@ -32,9 +32,6 @@ public class FlogoProjectLifeCycleListener extends AbstractMavenLifecyclePartici
 	public void afterProjectsRead(MavenSession session) throws MavenExecutionException {
 		logger.info("Starting Maven Build for Flogo App.................................");
 
-		if (session.getRequest().getGoals().contains("install") || session.getRequest().getGoals().contains("deploy")) {
-			throw new MavenExecutionException( "Goal not supported by the plugin", session.getRequest().getPom());
-		}
 		super.afterProjectsRead(session);
 	}
 
