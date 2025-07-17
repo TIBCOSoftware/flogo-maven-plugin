@@ -53,8 +53,14 @@ public class FlogoPackageRunner {
         launchConfig.add("export-build");
         launchConfig.add("-f");
         launchConfig.add(FlogoBuildConfig.INSTANCE.getAppPath());
+        if (FlogoBuildConfig.INSTANCE.getCustomFQImage() != null && !FlogoBuildConfig.INSTANCE.getCustomFQImage().isEmpty()) {
+            launchConfig.add("-i");
+            launchConfig.add(FlogoBuildConfig.INSTANCE.getCustomFQImage());
+        }
+
         launchConfig.add("-b");
-        launchConfig.add(Paths.get(FlogoBuildConfig.INSTANCE.getOutputPathPlatform(),"flogo-engine").toFile().getAbsolutePath());
+        launchConfig.add(Paths.get(FlogoBuildConfig.INSTANCE.getOutputPathPlatform(),FlogoBuildConfig.INSTANCE.getArtifactId()).toFile().getAbsolutePath());
+
         launchConfig.add("-o");
         launchConfig.add(Paths.get(FlogoBuildConfig.INSTANCE.getOutputPath(), FlogoBuildConfig.INSTANCE.getArtifactId() + ".zip").toFile().getAbsolutePath());
         launchConfig.add("-t");

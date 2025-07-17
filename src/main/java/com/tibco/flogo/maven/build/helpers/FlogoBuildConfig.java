@@ -17,6 +17,16 @@ public class FlogoBuildConfig {
     private String mqHome;
     private boolean crossPlatform;
     private String  tags;
+    private String customFQImage;
+
+    public String getCustomFQImage() {
+        return customFQImage;
+    }
+
+    public void setCustomFQImage(String customFQImage) {
+        this.customFQImage = customFQImage;
+    }
+
 
     public String getOutputPathPlatform() {
         return outputPathPlatform;

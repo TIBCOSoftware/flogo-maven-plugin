@@ -47,6 +47,8 @@ public class FlogoPackageMojo extends AbstractMojo {
     @Parameter(property = "tibcoPlatformBuildTags", defaultValue = "")
     private String tibcoPlatformBuildTags;
 
+    @Parameter(property = "customFQImage", defaultValue = "")
+    private String customFQImage;
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
@@ -97,6 +99,7 @@ public class FlogoPackageMojo extends AbstractMojo {
 
             FlogoBuildConfig.INSTANCE.setCrossPlatform(crossPlatform);
             FlogoBuildConfig.INSTANCE.setTags( tibcoPlatformBuildTags);
+            FlogoBuildConfig.INSTANCE.setCustomFQImage(customFQImage);
             FlogoPackageRunner runner = new FlogoPackageRunner();
             runner.run();
 

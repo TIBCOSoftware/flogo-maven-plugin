@@ -59,6 +59,9 @@ public class FlogoBuildMojo extends AbstractMojo {
     @Parameter(property = "deploymentTarget", defaultValue = "")
     private String deployTarget;
 
+    @Parameter(property = "customFQImage", defaultValue = "")
+    private String customFQImage;
+
     public void execute() throws MojoExecutionException, MojoFailureException {
         try {
 
@@ -88,6 +91,7 @@ public class FlogoBuildMojo extends AbstractMojo {
             if (!Paths.get(outputDirectory.getAbsolutePath(), "platform").toFile().exists()) {
                 Files.createDirectory(Paths.get(outputDirectory.getAbsolutePath(), "platform").toFile().toPath());
             }
+
 
 
             FlogoBuildConfig.INSTANCE.setOutputPath(outputDirectory.getPath());
@@ -125,6 +129,7 @@ public class FlogoBuildMojo extends AbstractMojo {
             FlogoBuildConfig.INSTANCE.setEmsHome(emsHome);
             FlogoBuildConfig.INSTANCE.setMqHome(mqHome);
             FlogoBuildConfig.INSTANCE.setCrossPlatform(crossPlatform);
+            FlogoBuildConfig.INSTANCE.setCustomFQImage( customFQImage);
             FlogoCLIRunner runner = new FlogoCLIRunner();
             runner.run();
 
