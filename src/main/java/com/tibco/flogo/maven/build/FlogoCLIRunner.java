@@ -3,9 +3,7 @@ package com.tibco.flogo.maven.build;
 import com.tibco.flogo.maven.build.helpers.FlogoBuildConfig;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.InputStreamReader;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -17,11 +15,8 @@ public class FlogoCLIRunner {
 
 
         if (!System.getProperty("os.name").toLowerCase().contains("linux")) {
-            if ( FlogoBuildConfig.INSTANCE.getCrossPlatform() && (FlogoBuildConfig.INSTANCE.getCustomFQImage() == null || FlogoBuildConfig.INSTANCE.getCustomFQImage().isEmpty()) ) {
+            if ( FlogoBuildConfig.INSTANCE.getCrossPlatform() ) {
                 runBuild(getLaunchConfigLinux());
-            } else {
-                File file = Paths.get(FlogoBuildConfig.INSTANCE.getOutputPathPlatform(), FlogoBuildConfig.INSTANCE.getArtifactId()).toFile();
-                file.createNewFile();
             }
         }
     }
