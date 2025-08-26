@@ -8,9 +8,11 @@ import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.project.MavenProjectHelper;
 
 import java.io.File;
 import java.nio.file.Paths;
@@ -49,6 +51,9 @@ public class FlogoPackageMojo extends AbstractMojo {
 
     @Parameter(property = "customFQImage", defaultValue = "")
     private String customFQImage;
+
+    @Component
+    private MavenProjectHelper projectHelper;
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
@@ -102,6 +107,17 @@ public class FlogoPackageMojo extends AbstractMojo {
             FlogoBuildConfig.INSTANCE.setCustomFQImage(customFQImage);
             FlogoPackageRunner runner = new FlogoPackageRunner();
             runner.run();
+
+            File artifactFile = Paths.get(
+                    FlogoBuildConfig.INSTANCE.getOutputPath(),
+                    FlogoBuildConfig.INSTANCE.getArtifactId() + ".zip"
+            ).toFile();
+
+            projectHelper.attachArtifact(
+                    session.getCurrentProject(),
+                    "zip",
+                    artifactFile
+            );
 
         } catch (Exception e) {
             getLog().error(e);
