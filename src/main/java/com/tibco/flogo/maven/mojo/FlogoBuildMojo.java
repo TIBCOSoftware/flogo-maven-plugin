@@ -95,7 +95,7 @@ public class FlogoBuildMojo extends AbstractMojo {
 
 
             FlogoBuildConfig.INSTANCE.setOutputPath(outputDirectory.getPath());
-            FlogoBuildConfig.INSTANCE.setOutputPathPlatform(Paths.get(outputDirectory.getPath(), "platform").toFile().getAbsolutePath());
+            FlogoBuildConfig.INSTANCE.setOutputPathPlatform(outputDirectory.getPath());
             FlogoBuildConfig.INSTANCE.setArtifactId(artifactId);
 
             if (flogoVSCodeExtensionPath == null || flogoVSCodeExtensionPath.isEmpty()) {
