@@ -69,7 +69,7 @@ public class FlogoBuildMojo extends AbstractMojo {
             getLog().info("Flogo application binary build started");
 
 
-            if (session.getRequest().getGoals().contains("package")) {
+            if (session.getRequest().getGoals().contains("package")  || session.getRequest().getGoals().contains("install") || session.getRequest().getGoals().contains("deploy")) {
                 if ( !deployTarget.isEmpty() && !deployTarget.equals("tibco-platform")) {
                     throw new Exception("Invalid deploy target: " + deployTarget);
                 }

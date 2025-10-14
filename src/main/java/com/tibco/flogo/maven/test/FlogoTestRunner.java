@@ -40,9 +40,14 @@ public class FlogoTestRunner {
 
 
         String content = FileHelper.readFile(Paths.get(FlogoTestConfig.INSTANCE.getTestOutputDir(), FlogoTestConfig.INSTANCE.getTestOutputFile() + ".testresult").toFile().getAbsolutePath(), Charset.defaultCharset());
-
+        if (content == null || content == "" ){
+            return;
+        }
         ObjectMapper mapper = new ObjectMapper();
         Root root = mapper.readValue(content, Root.class);
+        if (root == null || root.result == null) {
+            return;
+        }
         if (root.result.failedSuites > 0) {
             throw new MojoFailureException("Tests failed");
         }

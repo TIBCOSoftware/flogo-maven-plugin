@@ -35,7 +35,6 @@ public class FlogoPackageMojo extends AbstractMojo {
     @Parameter(property = "appFilePath", defaultValue = "")
     private String appFilePath;
 
-
     @Parameter(property = "project.artifactId")
     private String artifactId;
 

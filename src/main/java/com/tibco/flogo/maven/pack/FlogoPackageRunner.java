@@ -1,6 +1,7 @@
 package com.tibco.flogo.maven.pack;
 
 import com.tibco.flogo.maven.build.helpers.FlogoBuildConfig;
+import org.apache.commons.lang3.SystemUtils;
 import org.codehaus.plexus.util.FileUtils;
 
 import java.io.BufferedReader;
@@ -59,7 +60,18 @@ public class FlogoPackageRunner {
         }
 
         launchConfig.add("-b");
-        launchConfig.add(Paths.get(FlogoBuildConfig.INSTANCE.getOutputPathPlatform(),FlogoBuildConfig.INSTANCE.getArtifactId()).toFile().getAbsolutePath());
+        if (SystemUtils.IS_OS_LINUX ) {
+            launchConfig.add(Paths.get(FlogoBuildConfig.INSTANCE.getOutputPath(),FlogoBuildConfig.INSTANCE.getArtifactId()).toFile().getAbsolutePath());
+        }else {
+            launchConfig.add(Paths.get(FlogoBuildConfig.INSTANCE.getOutputPathPlatform(),FlogoBuildConfig.INSTANCE.getArtifactId()).toFile().getAbsolutePath());
+
+        }
+//        launchConfig.add( "-r");
+//        launchConfig.add( FlogoBuildConfig.INSTANCE.getFlogoRuntimePath());
+//
+//        launchConfig.add( "-c");
+//        launchConfig.add( FlogoBuildConfig.INSTANCE.getFlogoConnectorsPath());
+
 
         launchConfig.add("-o");
         launchConfig.add(Paths.get(FlogoBuildConfig.INSTANCE.getOutputPath(), FlogoBuildConfig.INSTANCE.getArtifactId() + ".zip").toFile().getAbsolutePath());
