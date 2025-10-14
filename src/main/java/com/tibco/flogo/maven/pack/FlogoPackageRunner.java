@@ -66,11 +66,11 @@ public class FlogoPackageRunner {
             launchConfig.add(Paths.get(FlogoBuildConfig.INSTANCE.getOutputPathPlatform(),FlogoBuildConfig.INSTANCE.getArtifactId()).toFile().getAbsolutePath());
 
         }
-        launchConfig.add( "-r");
-        launchConfig.add( FlogoBuildConfig.INSTANCE.getFlogoRuntimePath());
-
-        launchConfig.add( "-c");
-        launchConfig.add( FlogoBuildConfig.INSTANCE.getFlogoConnectorsPath());
+//        launchConfig.add( "-r");
+//        launchConfig.add( FlogoBuildConfig.INSTANCE.getFlogoRuntimePath());
+//
+//        launchConfig.add( "-c");
+//        launchConfig.add( FlogoBuildConfig.INSTANCE.getFlogoConnectorsPath());
 
 
         launchConfig.add("-o");
