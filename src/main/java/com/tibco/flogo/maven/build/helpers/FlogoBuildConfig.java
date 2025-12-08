@@ -18,6 +18,19 @@ public class FlogoBuildConfig {
     private boolean crossPlatform;
     private String  tags;
     private String customFQImage;
+    private String buildType;
+
+
+    public String getLicenseFile() {
+        return licenseFile;
+    }
+
+    public void setLicenseFile(String licenseFile) {
+        this.licenseFile = licenseFile;
+    }
+
+    private String licenseFile;
+
 
     public String getCustomFQImage() {
         return customFQImage;

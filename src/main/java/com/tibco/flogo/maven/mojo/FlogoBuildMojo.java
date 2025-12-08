@@ -62,6 +62,10 @@ public class FlogoBuildMojo extends AbstractMojo {
     @Parameter(property = "customFQImage", defaultValue = "")
     private String customFQImage;
 
+    @Parameter(property = "licenseFile", defaultValue = "")
+    private String licenseFile;
+
+
     public void execute() throws MojoExecutionException, MojoFailureException {
         try {
 
@@ -130,6 +134,7 @@ public class FlogoBuildMojo extends AbstractMojo {
             FlogoBuildConfig.INSTANCE.setMqHome(mqHome);
             FlogoBuildConfig.INSTANCE.setCrossPlatform(crossPlatform);
             FlogoBuildConfig.INSTANCE.setCustomFQImage( customFQImage);
+            FlogoBuildConfig.INSTANCE.setLicenseFile(licenseFile);
             FlogoCLIRunner runner = new FlogoCLIRunner();
             runner.run();
 

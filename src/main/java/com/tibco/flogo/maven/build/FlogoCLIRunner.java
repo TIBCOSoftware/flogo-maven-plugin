@@ -13,6 +13,10 @@ import java.util.Map;
 public class FlogoCLIRunner {
 
     public void run() throws Exception {
+
+        if ( FlogoBuildConfig.INSTANCE.getLicenseFile() != null && !System.getProperty("os.name").toLowerCase().contains("linux") ) {
+            throw new Exception( "License file can be only embedded on Linux platform");
+        }
         runBuild(getLaunchConfig());
 
 
@@ -60,6 +64,7 @@ public class FlogoCLIRunner {
 
     private List<String> getLaunchConfig() {
         List<String> launchConfig = new ArrayList<>();
+//        launchConfig.add("/bin/sh -c /mnt/c/Codebase/Apps/Flogo/VS/rest-basic/build.sh");
         launchConfig.add(FlogoBuildConfig.INSTANCE.getFlogoCLIPath());
         launchConfig.add("app");
         launchConfig.add("build");
@@ -75,13 +80,21 @@ public class FlogoCLIRunner {
         launchConfig.add(FlogoBuildConfig.INSTANCE.getOutputPath());
         launchConfig.add("-n");
         launchConfig.add(FlogoBuildConfig.INSTANCE.getArtifactId());
-        launchConfig.add("-d");
+        if (FlogoBuildConfig.INSTANCE.getLicenseFile() != "" && System.getProperty("os.name").toLowerCase().contains("linux")) {
+            launchConfig.add("-l");
+            launchConfig.add(FlogoBuildConfig.INSTANCE.getLicenseFile());
+        } else {
 
+        }
+
+        launchConfig.add("-d");
+        System.out.println( launchConfig.toString());
         return launchConfig;
     }
 
     private List<String> getLaunchConfigLinux() {
         List<String> launchConfig = new ArrayList<>();
+        launchConfig.add("/bin/sh -c");
         launchConfig.add(FlogoBuildConfig.INSTANCE.getFlogoCLIPath());
         launchConfig.add("app");
         launchConfig.add("build");
@@ -100,7 +113,9 @@ public class FlogoCLIRunner {
         launchConfig.add("-p");
         launchConfig.add("linux/amd64");
         launchConfig.add("-d");
+        System.out.println( launchConfig.toString());
         return launchConfig;
+
     }
 
 
