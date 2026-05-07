@@ -116,7 +116,18 @@ public class FlogoBuildMojo extends AbstractMojo {
                 }
             } else {
                 File file = new File(appFilePath);
-                if (file.isFile()) {
+                if (file.isDirectory()) {
+                    File[] fdmdFiles = file.listFiles((dir, name) -> name.toLowerCase().endsWith(".fdmd"));
+                    if (fdmdFiles == null || fdmdFiles.length == 0) {
+                        throw new Exception("No Flogo app file with extension .fdmd found in directory => " + file.getAbsolutePath());
+                    }
+                    File fdmdFile = fdmdFiles[0];
+                    if (!fdmdFile.isAbsolute()) {
+                        FlogoBuildConfig.INSTANCE.setAppPath(fdmdFile.getCanonicalPath());
+                    } else {
+                        FlogoBuildConfig.INSTANCE.setAppPath(fdmdFile.getAbsolutePath());
+                    }
+                } else if (file.isFile()) {
                     if (!file.isAbsolute()) {
                         FlogoBuildConfig.INSTANCE.setAppPath(file.getCanonicalPath());
                     } else {
