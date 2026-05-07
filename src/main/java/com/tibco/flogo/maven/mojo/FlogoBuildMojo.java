@@ -109,7 +109,7 @@ public class FlogoBuildMojo extends AbstractMojo {
             if (appFilePath == null || appFilePath.isEmpty()) {
                 // App not provided explicitly. Check for flogo app in the base folder.
                 File base = new File(Paths.get( projectBaseDir.getAbsolutePath()).toFile().getAbsolutePath());
-                File[] fdmdFiles = base.listFiles((dir, name) -> name.toLowerCase().endsWith(".fdmd"));
+                File[] fdmdFiles = base.listFiles((dir, name) -> name.toLowerCase().endsWith(".fgmd"));
                 //Check if the project is 2x or 3x
                 if (fdmdFiles == null || fdmdFiles.length == 0) {
                     appFilePath = Paths.get(projectBaseDir.getAbsolutePath(), artifactId + ".flogo").toFile().getAbsolutePath();
@@ -125,9 +125,9 @@ public class FlogoBuildMojo extends AbstractMojo {
             } else {
                 File file = new File(appFilePath);
                 if (file.isDirectory()) {
-                    File[] fdmdFiles = file.listFiles((dir, name) -> name.toLowerCase().endsWith(".fdmd"));
+                    File[] fdmdFiles = file.listFiles((dir, name) -> name.toLowerCase().endsWith(".fgmd"));
                     if (fdmdFiles == null || fdmdFiles.length == 0) {
-                        throw new Exception("No Flogo app file with extension .fdmd found in directory => " + file.getAbsolutePath());
+                        throw new Exception("No Flogo app file with extension .fgmd found in directory => " + file.getAbsolutePath());
                     }
                     File fdmdFile = fdmdFiles[0];
                     if (!fdmdFile.isAbsolute()) {
