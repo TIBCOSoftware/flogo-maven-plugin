@@ -108,12 +108,20 @@ public class FlogoBuildMojo extends AbstractMojo {
 
             if (appFilePath == null || appFilePath.isEmpty()) {
                 // App not provided explicitly. Check for flogo app in the base folder.
-                appFilePath = Paths.get(projectBaseDir.getAbsolutePath(), artifactId + ".flogo").toFile().getAbsolutePath();
-                if (new File(appFilePath).isFile()) {
-                    FlogoBuildConfig.INSTANCE.setAppPath(appFilePath);
+                File base = new File(Paths.get( projectBaseDir.getAbsolutePath()).toFile().getAbsolutePath());
+                File[] fdmdFiles = base.listFiles((dir, name) -> name.toLowerCase().endsWith(".fdmd"));
+                //Check if the project is 2x or 3x
+                if (fdmdFiles == null || fdmdFiles.length == 0) {
+                    appFilePath = Paths.get(projectBaseDir.getAbsolutePath(), artifactId + ".flogo").toFile().getAbsolutePath();
+                    if (new File(appFilePath).isFile()) {
+                        FlogoBuildConfig.INSTANCE.setAppPath(appFilePath);
+                    } else {
+                        throw new Exception("Project is not a Flogo3 or Flogo 2 project.");
+                    }
                 } else {
-                    throw new Exception("No flogo app found with name => " + (artifactId + ".flogo") + " in the project directory");
+                    FlogoBuildConfig.INSTANCE.setAppPath(Paths.get(projectBaseDir.getAbsolutePath()).toFile().getAbsolutePath());
                 }
+
             } else {
                 File file = new File(appFilePath);
                 if (file.isDirectory()) {
