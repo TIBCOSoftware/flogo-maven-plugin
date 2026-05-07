@@ -14,7 +14,7 @@ public class FlogoCLIRunner {
 
     public void run() throws Exception {
 
-        if ( FlogoBuildConfig.INSTANCE.getLicenseFile() != null && !System.getProperty("os.name").toLowerCase().contains("linux") ) {
+        if ( FlogoBuildConfig.INSTANCE.getLicenseFile() != null && !FlogoBuildConfig.INSTANCE.getLicenseFile().isEmpty() && !System.getProperty("os.name").toLowerCase().contains("linux") ) {
             throw new Exception( "License file can be only embedded on Linux platform");
         }
         runBuild(getLaunchConfig());
