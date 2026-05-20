@@ -1,5 +1,7 @@
 package com.tibco.flogo.maven.mojo;
 
+import com.tibco.flogo.maven.build.VSIXExtractor;
+import com.tibco.flogo.maven.build.helpers.FlogoBuildConfig;
 import com.tibco.flogo.maven.test.FlogoTestConfig;
 import com.tibco.flogo.maven.test.FlogoTestRunner;
 import org.apache.commons.io.FilenameUtils;
@@ -50,6 +52,8 @@ public class FlogoTestMojo extends AbstractMojo {
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
 
+        VSIXExtractor extractor = new VSIXExtractor();
+        extractor.extract( flogoVSCodeExtensionPath);
         if (skipTests) {
                 getLog().info( "-------------------------------------------------------" );
                 getLog().info( "skipTests flag is set to true. Skipping Test phase.");
@@ -65,31 +69,56 @@ public class FlogoTestMojo extends AbstractMojo {
                 return;
             }
 
+            String appFile = null;
+            String appTestFile = null;
+
             if (appFilePath == null || appFilePath.isEmpty()) {
-                // App not provided explicitly. Check for flogo app in the base folder.
-                appFilePath = Paths.get(projectBaseDir.getAbsolutePath(), artifactId+".flogo").toFile().getAbsolutePath();
-                if ( new File(appFilePath).isFile() ) {
-                } else {
-                    throw new Exception( "No flogo app found with name => " + (artifactId+".flogo") + " in the project directory");
-                }
-            } else {
-                File file = new File(appFilePath);
-                if (file.isFile()) {
-                    if (!file.isAbsolute()) {
+
+                File base = new File(Paths.get( projectBaseDir.getAbsolutePath()).toFile().getAbsolutePath());
+                File[] fdmdFiles = base.listFiles((dir, name) -> name.toLowerCase().endsWith(".fgmd"));
+                //Check if the project is 2x or 3x
+                if (fdmdFiles == null || fdmdFiles.length == 0) {
+                    appFilePath = Paths.get(projectBaseDir.getAbsolutePath(), artifactId + ".flogo").toFile().getAbsolutePath();
+                    if (new File(appFilePath).isFile()) {
+                        appFile = appFilePath;
+                        String appfileName = FilenameUtils.getBaseName( appFilePath);
+                        String testFilePath = Paths.get(projectBaseDir.getAbsolutePath(), appfileName+".flogotest").toFile().getAbsolutePath();
+                        appTestFile = testFilePath;
+
                     } else {
+                        throw new Exception("Project is not a Flogo3 or Flogo 2 project.");
                     }
                 } else {
-                    throw new Exception("Invalid Flogo App file path provided. Flogo path can be provided relative to the folder where the POM file is present or absolute path.");
+                    File[] flogoFile = Paths.get(outputDirectory.getAbsolutePath()).toFile().listFiles((dir, name) -> name.toLowerCase().endsWith(".flogo3"));
+                    File[] flogotestFile = Paths.get(outputDirectory.getAbsolutePath()).toFile().listFiles((dir, name) -> name.toLowerCase().endsWith(".flogotest3"));if  (flogoFile != null && flogoFile.length == 1) {appFile = flogoFile[0].getAbsolutePath();
+                    }
+                    if  (flogotestFile != null && flogotestFile.length == 1) {
+                        appTestFile = flogotestFile[0].getAbsolutePath();
+                    }
+                }
+
+            } else {
+                File file = new File(appFilePath);
+                if (file.isDirectory()) {
+                    File[] fdmdFiles = file.listFiles((dir, name) -> name.toLowerCase().endsWith(".fgmd"));
+                    if (fdmdFiles == null || fdmdFiles.length == 0) {
+                        throw new Exception("No Flogo app file with extension .fgmd found in directory => " + file.getAbsolutePath());
+                    }
+                    File[] flogotestFile = Paths.get(outputDirectory.getAbsolutePath()).toFile().listFiles((dir, name) -> name.toLowerCase().endsWith(".flogotest3"));
+                    if  (flogotestFile != null && flogotestFile.length == 1) {
+                        appTestFile = flogotestFile[0].getAbsolutePath();
+                    }
+
+                } else {
+                    String appfileName = FilenameUtils.getBaseName( appFilePath);
+                    String appPath = new File( appFilePath).getParent();
+                    appTestFile = Paths.get(appPath, appfileName+".flogotest").toFile().getAbsolutePath();
                 }
             }
 
-            String appfileName = FilenameUtils.getBaseName( appFilePath);
-
-            String appPath = new File( appFilePath).getParent();
-            String testFilePath = Paths.get(appPath, appfileName+".flogotest").toFile().getAbsolutePath();
-            if ( !new File(testFilePath).isFile() ) {
+            if ( !new File(appTestFile).isFile() ) {
                 if (failIfNoTests) {
-                    throw new Exception( "No flogo tests found with name => " + (appfileName+".flogotest") + " in the project directory");
+                    throw new Exception( "No flogo tests in the project directory");
                 } else {
                     getLog().info( "-------------------------------------------------------" );
                     getLog().info( "No flogo test file found for the app. Tests will be skipped.");
@@ -100,7 +129,7 @@ public class FlogoTestMojo extends AbstractMojo {
             }
 
             FlogoTestConfig.INSTANCE.setAppBinary(Paths.get(outputDirectory.getAbsolutePath(), artifactId).toFile().getAbsolutePath());
-            FlogoTestConfig.INSTANCE.setTestFilePath(testFilePath);
+            FlogoTestConfig.INSTANCE.setTestFilePath(appTestFile);
             FlogoTestConfig.INSTANCE.setSuites( suites);
             File testresult = new File(Paths.get(outputDirectory.getAbsolutePath(), "testresult").toFile().getAbsolutePath());
             if (!testresult.exists()) {

@@ -21,7 +21,7 @@ public class FlogoCLIRunner {
 
 
         if (!System.getProperty("os.name").toLowerCase().contains("linux")) {
-            if ( FlogoBuildConfig.INSTANCE.getCustomFQImage() != "" && FlogoBuildConfig.INSTANCE.getCrossPlatform() ) {
+            if ( FlogoBuildConfig.INSTANCE.getCustomFQImage() != null && FlogoBuildConfig.INSTANCE.getCustomFQImage().isEmpty() && FlogoBuildConfig.INSTANCE.getCrossPlatform() ) {
                 runBuild(getLaunchConfigLinux());
             }  else {
             File file = Paths.get(FlogoBuildConfig.INSTANCE.getOutputPathPlatform(), FlogoBuildConfig.INSTANCE.getArtifactId()).toFile();
@@ -40,6 +40,10 @@ public class FlogoCLIRunner {
         env.put("IBM_MQ_HOME", FlogoBuildConfig.INSTANCE.getMqHome());
         env.put( "EMS_HOME" , FlogoBuildConfig.INSTANCE.getEmsHome());
 
+        if (FlogoBuildConfig.INSTANCE.getCrossPlatform()) {
+            env.put( "VSCODE" , "true");
+
+        }
         // Combine stdout and stderr
         process = pb.start();
 
@@ -63,38 +67,39 @@ public class FlogoCLIRunner {
 
 
     private List<String> getLaunchConfig() {
-        List<String> launchConfig = new ArrayList<>();
-//        launchConfig.add("/bin/sh -c /mnt/c/Codebase/Apps/Flogo/VS/rest-basic/build.sh");
-        launchConfig.add(FlogoBuildConfig.INSTANCE.getFlogoCLIPath());
-        launchConfig.add("app");
-        launchConfig.add("build");
-        launchConfig.add("-f");
-        launchConfig.add(FlogoBuildConfig.INSTANCE.getAppPath());
-        launchConfig.add("-b");
-        launchConfig.add(FlogoBuildConfig.INSTANCE.getFlogoRuntimePath());
-        launchConfig.add("-c");
-        launchConfig.add(FlogoBuildConfig.INSTANCE.getFlogoConnectorsPath());
-        launchConfig.add("-e");
-        launchConfig.add(FlogoBuildConfig.INSTANCE.getCustomExtensionsPath());
-        launchConfig.add("-o");
-        launchConfig.add(FlogoBuildConfig.INSTANCE.getOutputPath());
-        launchConfig.add("-n");
-        launchConfig.add(FlogoBuildConfig.INSTANCE.getArtifactId());
-        if (FlogoBuildConfig.INSTANCE.getLicenseFile() != "" && System.getProperty("os.name").toLowerCase().contains("linux")) {
-            launchConfig.add("-l");
-            launchConfig.add(FlogoBuildConfig.INSTANCE.getLicenseFile());
-        } else {
+            List<String> launchConfig = new ArrayList<>();
+    //        launchConfig.add("/bin/sh -c /mnt/c/Codebase/Apps/Flogo/VS/rest-basic/build.sh");
+            launchConfig.add(FlogoBuildConfig.INSTANCE.getFlogoCLIPath());
+            launchConfig.add("app");
+            launchConfig.add("build");
+            launchConfig.add("-f");
+            launchConfig.add(FlogoBuildConfig.INSTANCE.getAppPath());
+            launchConfig.add("-b");
+            launchConfig.add(FlogoBuildConfig.INSTANCE.getFlogoRuntimePath());
+            launchConfig.add("-c");
+            launchConfig.add(FlogoBuildConfig.INSTANCE.getFlogoConnectorsPath());
+            launchConfig.add("-e");
+            launchConfig.add(FlogoBuildConfig.INSTANCE.getCustomExtensionsPath());
+            launchConfig.add("-o");
+            launchConfig.add(FlogoBuildConfig.INSTANCE.getOutputPath());
+            launchConfig.add("-n");
+            launchConfig.add(FlogoBuildConfig.INSTANCE.getArtifactId());
+            if (FlogoBuildConfig.INSTANCE.getLicenseFile() != "" && System.getProperty("os.name").toLowerCase().contains("linux")) {
+                launchConfig.add("-l");
+                launchConfig.add(FlogoBuildConfig.INSTANCE.getLicenseFile());
+            } else {
 
-        }
-
-        launchConfig.add("-d");
-        System.out.println( launchConfig.toString());
-        return launchConfig;
+            }
+            if (FlogoBuildConfig.INSTANCE.getVsixVersion()[0] == 3 ) {
+                launchConfig.add("-t");
+            }
+            launchConfig.add("-d");
+            System.out.println( launchConfig.toString());
+            return launchConfig;
     }
 
     private List<String> getLaunchConfigLinux() {
         List<String> launchConfig = new ArrayList<>();
-        launchConfig.add("/bin/sh -c");
         launchConfig.add(FlogoBuildConfig.INSTANCE.getFlogoCLIPath());
         launchConfig.add("app");
         launchConfig.add("build");

@@ -20,6 +20,15 @@ public class FlogoBuildConfig {
     private String customFQImage;
     private String buildType;
 
+    public int[] getVsixVersion() {
+        return vsixVersion;
+    }
+
+    public void setVsixVersion(int[] vsixVersion) {
+        this.vsixVersion = vsixVersion;
+    }
+
+    private  int []vsixVersion;
 
     public String getLicenseFile() {
         return licenseFile;

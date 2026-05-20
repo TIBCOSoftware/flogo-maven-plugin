@@ -35,7 +35,10 @@ public class VSIXExtractor {
                 }
                 String flogoRuntimePath = Paths.get(vsixfile, "media", "flogo-runtime").toString();
                 String flogoConnPath = Paths.get(vsixfile, "media", "flogo-contributions", "wistudio", "v1", "contributions").toString();
+                String vsixVersion = findVSIXVersion(Paths.get(vsixfile + File.separator + ".vsixmanifest").toFile());
+                int[] version = parseMajorMinor( vsixVersion);
                 FlogoBuildConfig.INSTANCE.init(flogoBinaryPath, flogoRuntimePath, flogoConnPath);
+                FlogoBuildConfig.INSTANCE.setVsixVersion(version);
                 return;
             }
 
@@ -58,6 +61,8 @@ public class VSIXExtractor {
                 String flogoRuntimePath = Paths.get(directory.getAbsolutePath() + File.separator + vsixVersion + File.separator + "flogo-runtime").toString();
                 String flogoConnPath = Paths.get(directory.getAbsolutePath() + File.separator + vsixVersion + File.separator + "flogo-contributions").toString();
                 FlogoBuildConfig.INSTANCE.init(flogoBinaryPath, flogoRuntimePath, flogoConnPath);
+                int[] version = parseMajorMinor( vsixVersion);
+                FlogoBuildConfig.INSTANCE.setVsixVersion(version);
                 return;
             }
 
@@ -67,6 +72,7 @@ public class VSIXExtractor {
             copyDir(Paths.get(tmpdir.toFile().getAbsolutePath() + File.separator + "extension" + File.separator + "media" + File.separator + "flogo-runtime"), Paths.get(directory.getAbsolutePath() + File.separator + vsixVersion + File.separator + "flogo-runtime"));
             copyDir(Paths.get(tmpdir.toFile().getAbsolutePath() + File.separator + "extension" + File.separator + "media" + File.separator + "flogo-contributions" + File.separator + "wistudio" + File.separator + "v1" + File.separator + "contributions"), Paths.get(directory.getAbsolutePath() + File.separator + vsixVersion + File.separator + "flogo-contributions"));
             copyDir(Paths.get(tmpdir.toFile().getAbsolutePath() + File.separator + "extension" + File.separator + "bin"), Paths.get(directory.getAbsolutePath() + File.separator + vsixVersion + File.separator + "bin"));
+            Files.copy(Paths.get(tmpdir.toFile().getAbsolutePath() + File.separator + "extension.vsixmanifest"), Paths.get(directory.getAbsolutePath() + File.separator + vsixVersion + File.separator + ".vsixmanifest"));
             FileUtils.deleteDirectory(tmpdir.toFile());
 
 
@@ -82,10 +88,47 @@ public class VSIXExtractor {
             String flogoRuntimePath = Paths.get(directory.getAbsolutePath() + File.separator + vsixVersion + File.separator + "flogo-runtime").toString();
             String flogoConnPath = Paths.get(directory.getAbsolutePath() + File.separator + vsixVersion + File.separator + "flogo-contributions").toString();
             FlogoBuildConfig.INSTANCE.init(flogoBinaryPath, flogoRuntimePath, flogoConnPath);
+            int[] version = parseMajorMinor( vsixVersion);
+            FlogoBuildConfig.INSTANCE.setVsixVersion(version);
 
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    /**
+     * Parses the major and minor version from a vsixVersion string.
+     * Supports formats like "3.0.0-2280-v3-milestone-4" or "3.0.0".
+     *
+     * @param vsixVersion the full version string
+     * @return an int array of length 2 where [0] is major and [1] is minor
+     * @throws IllegalArgumentException if the version cannot be parsed
+     */
+    public static int[] parseMajorMinor(String vsixVersion) {
+        if (vsixVersion == null || vsixVersion.isEmpty()) {
+            throw new IllegalArgumentException("vsixVersion is null or empty");
+        }
+        // Strip any pre-release / build metadata after the first '-'
+        String core = vsixVersion.split("-", 2)[0];
+        String[] parts = core.split("\\.");
+        if (parts.length < 2) {
+            throw new IllegalArgumentException("Invalid vsixVersion format: " + vsixVersion);
+        }
+        try {
+            int major = Integer.parseInt(parts[0]);
+            int minor = Integer.parseInt(parts[1]);
+            return new int[]{major, minor};
+        } catch (NumberFormatException ex) {
+            throw new IllegalArgumentException("Invalid vsixVersion format: " + vsixVersion, ex);
+        }
+    }
+
+    public static int getMajorVersion(String vsixVersion) {
+        return parseMajorMinor(vsixVersion)[0];
+    }
+
+    public static int getMinorVersion(String vsixVersion) {
+        return parseMajorMinor(vsixVersion)[1];
     }
 
     public static String findVSIXVersion(File vsixfile) throws Exception {
