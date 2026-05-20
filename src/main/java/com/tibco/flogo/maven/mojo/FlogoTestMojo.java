@@ -69,8 +69,8 @@ public class FlogoTestMojo extends AbstractMojo {
                 return;
             }
 
-            String appFile = null;
-            String appTestFile = null;
+            String appFile = "";
+            String appTestFile = "";
 
             if (appFilePath == null || appFilePath.isEmpty()) {
 
