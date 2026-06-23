@@ -77,10 +77,19 @@ public class ActivityIOReport extends AbstractMavenReport {
 
             if (appFilePath == null || appFilePath.isEmpty()) {
                 // App not provided explicitly. Check for flogo app in the base folder.
-                appFilePath = Paths.get(projectBaseDir.getAbsolutePath(), artifactId + ".flogo").toFile().getAbsolutePath();
-                if (new File(appFilePath).isFile()) {
-                } else {
-                    throw new Exception("No flogo app found with name => " + (artifactId + ".flogo") + " in the project directory");
+                File base = new File(Paths.get( projectBaseDir.getAbsolutePath()).toFile().getAbsolutePath());
+                File[] fdmdFiles = base.listFiles((dir, name) -> name.toLowerCase().endsWith(".fgmd"));
+                //Check if the project is 2x or 3x
+                if (fdmdFiles == null || fdmdFiles.length == 0) {
+                    if (fdmdFiles == null || fdmdFiles.length == 0) {
+                        appFilePath = Paths.get(projectBaseDir.getAbsolutePath(), artifactId + ".flogo").toFile().getAbsolutePath();
+                        if (new File(appFilePath).isFile()) {
+
+                        } else {
+                            throw new Exception("Project is not a Flogo3 or Flogo 2 project.");
+
+                        }
+                    }
                 }
             } else {
                 File file = new File(appFilePath);
@@ -96,7 +105,7 @@ public class ActivityIOReport extends AbstractMavenReport {
             String appfileName = FilenameUtils.getBaseName(appFilePath);
             FlogoActivityIOReportGenerator report = new FlogoActivityIOReportGenerator();
 
-            File testReport = new File(Paths.get(outputDirectory.getAbsolutePath(), "testresult", appfileName + ".testresult").toString());
+            File testReport = new File(Paths.get(outputDirectory.getAbsolutePath(), "testresult", artifactId + ".testresult").toString());
             if (!testReport.exists()) {
                 report.generateReportEmptytestFile( getSink());
                 return;
@@ -110,7 +119,7 @@ public class ActivityIOReport extends AbstractMavenReport {
             FlogoTestConfig.INSTANCE.setTestOutputFile(appfileName);
 
             getLog().info("Generating report ..");
-            String content = FileHelper.readFile(Paths.get(FlogoTestConfig.INSTANCE.getTestOutputDir(), FlogoTestConfig.INSTANCE.getTestOutputFile() + ".testresult").toFile().getAbsolutePath(), Charset.defaultCharset());
+            String content = FileHelper.readFile(Paths.get(FlogoTestConfig.INSTANCE.getTestOutputDir(), artifactId + ".testresult").toFile().getAbsolutePath(), Charset.defaultCharset());
 
             ObjectMapper mapper = new ObjectMapper();
             Root root = mapper.readValue(content, Root.class);
