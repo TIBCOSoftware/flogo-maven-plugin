@@ -81,7 +81,7 @@ public class ActivityIOReport extends AbstractMavenReport {
                 File[] fdmdFiles = base.listFiles((dir, name) -> name.toLowerCase().endsWith(".fgmd"));
                 //Check if the project is 2x or 3x
                 if (fdmdFiles == null || fdmdFiles.length == 0) {
-                    if (fdmdFiles == null || fdmdFiles.length == 0) {
+
                         appFilePath = Paths.get(projectBaseDir.getAbsolutePath(), artifactId + ".flogo").toFile().getAbsolutePath();
                         if (new File(appFilePath).isFile()) {
 
@@ -89,7 +89,10 @@ public class ActivityIOReport extends AbstractMavenReport {
                             throw new Exception("Project is not a Flogo3 or Flogo 2 project.");
 
                         }
-                    }
+
+                } else {
+                    File[] flogoFile = Paths.get(outputDirectory.getAbsolutePath()).toFile().listFiles((dir, name) -> name.toLowerCase().endsWith(".flogo3"));
+                    appFilePath = flogoFile[0].getAbsolutePath();
                 }
             } else {
                 File file = new File(appFilePath);
