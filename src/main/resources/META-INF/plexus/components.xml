@@ -19,7 +19,7 @@
             <implementation>org.apache.maven.artifact.handler.DefaultArtifactHandler</implementation>
             <configuration>
                 <type>flogolib</type>
-                <extension>pom</extension>
+                <extension>flogolib</extension>
                 <language>java</language>
                 <packaging>flogolib</packaging>
             </configuration>

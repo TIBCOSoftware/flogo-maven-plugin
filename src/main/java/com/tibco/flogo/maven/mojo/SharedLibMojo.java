@@ -4,11 +4,9 @@ import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
-import org.apache.maven.project.MavenProjectHelper;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -36,9 +34,6 @@ public class SharedLibMojo extends AbstractMojo {
     @Parameter(defaultValue = "${session}", readonly = true)
     private MavenSession session;
 
-    @Component
-    private MavenProjectHelper projectHelper;
-
     public void execute() throws MojoExecutionException, MojoFailureException {
 
         try {
@@ -57,11 +52,12 @@ public class SharedLibMojo extends AbstractMojo {
 
             zipDirectory(projectBaseDir, zipFile);
 
-            projectHelper.attachArtifact(
-                    session.getCurrentProject(),
-                    "zip",
-                    zipFile
-            );
+            // The .flogolib zip is the primary deliverable for the "flogolib" packaging,
+            // so set it as the project's main artifact rather than attaching it as a
+            // secondary artifact. Attaching it with type "flogolib" would collide with the
+            // main artifact's id (groupId:artifactId:flogolib:version) and fail with
+            // "An attached artifact must have a different ID than its corresponding main artifact".
+            session.getCurrentProject().getArtifact().setFile(zipFile);
 
             getLog().info("Zipped project base directory to " + zipFile.getAbsolutePath());
         }catch (Exception e) {
