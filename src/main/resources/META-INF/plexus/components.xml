@@ -19,11 +19,27 @@
             <implementation>org.apache.maven.artifact.handler.DefaultArtifactHandler</implementation>
             <configuration>
                 <type>flogolib</type>
-                <extension>flogolib</extension>
+                <extension>fglib</extension>
                 <language>java</language>
                 <packaging>flogolib</packaging>
             </configuration>
         </component>
+
+
+
+        <component>
+            <role>org.apache.maven.artifact.handler.ArtifactHandler</role>
+            <role-hint>flogoextension</role-hint>
+            <implementation>org.apache.maven.artifact.handler.DefaultArtifactHandler</implementation>
+
+            <configuration>
+                <type>flogoextension</type>
+                <extension>flogoextension</extension>
+                <language>java</language>
+                <packaging>flogoextension</packaging>
+            </configuration>
+        </component>
+
         <component>
             <role>org.apache.maven.lifecycle.mapping.LifecycleMapping</role>
             <role-hint>flogo</role-hint>
@@ -42,6 +58,7 @@
                 </phases>
             </configuration>
         </component>
+
         <component>
             <role>org.apache.maven.lifecycle.mapping.LifecycleMapping</role>
             <role-hint>flogolib</role-hint>
@@ -60,6 +77,27 @@
                 </phases>
             </configuration>
         </component>
+
+        <component>
+            <role>org.apache.maven.lifecycle.mapping.LifecycleMapping</role>
+            <role-hint>flogoextension</role-hint>
+            <implementation>org.apache.maven.lifecycle.mapping.DefaultLifecycleMapping</implementation>
+            <configuration>
+                <phases>
+<!--                    <validate>com.tibco.plugins:flogo-maven-plugin:flogovalidateextension</validate>-->
+                    <process-resources>org.apache.maven.plugins:maven-resources-plugin:resources</process-resources>
+                    <compile>org.apache.maven.plugins:maven-compiler-plugin:compile</compile>
+                    <process-test-resources>org.apache.maven.plugins:maven-resources-plugin:testResources
+                    </process-test-resources>
+                    <test-compile>org.apache.maven.plugins:maven-compiler-plugin:testCompile</test-compile>
+                    <compile>org.apache.maven.plugins:maven-compiler-plugin:compile</compile>
+                    <package>com.tibco.plugins:flogo-maven-plugin:flogopackageextension</package>
+                    <install>org.apache.maven.plugins:maven-install-plugin:install</install>
+                    <deploy>org.apache.maven.plugins:maven-deploy-plugin:deploy</deploy>
+                </phases>
+            </configuration>
+        </component>
+
         <component>
             <role>org.apache.maven.AbstractMavenLifecycleParticipant</role>
             <implementation>
