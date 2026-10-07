@@ -132,13 +132,13 @@ public class SharedLibMojo extends AbstractMojo {
      * each populated with the base-dir-relative paths of the files found in the
      * matching subfolder. Existing manifest metadata (name, version, etc.) is preserved.
      *
-     * @return the serialized manifest bytes, or {@code null} if no {@code app.fgmd} exists.
+     * @return the serialized manifest bytes.
+     * @throws MojoExecutionException if no {@code app.fgmd} exists in the base dir.
      */
-    private byte[] buildAppFgmd(File baseDir) throws IOException {
+    private byte[] buildAppFgmd(File baseDir) throws IOException, MojoExecutionException {
         File fgmdFile = new File(baseDir, FGMD_FILE_NAME);
         if (!fgmdFile.isFile()) {
-            getLog().warn(FGMD_FILE_NAME + " not found in " + baseDir + "; packaging without an enriched manifest.");
-            return null;
+            throw new MojoExecutionException(FGMD_FILE_NAME + " not found in " + baseDir + ". The flogo project is not valid");
         }
 
         ObjectMapper mapper = new ObjectMapper();
